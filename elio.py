@@ -75,13 +75,7 @@ def get_obstacle(obstacle_pos):
     else :
         return False
     
-def stop (AIN1, AIN2, BIN1, BIN2):
-    # Arreter le robot
-    AIN1.duty_cycle = 0
-    AIN2.duty_cycle = 0
-    BIN1.duty_cycle = 0
-    BIN2.duty_cycle = 0
-
+    
 def set_speed(speed):
     # Convertir la vitesse de 0-100 à 0-65535 pour pwmio
     pwm_value = int((speed / 100) * 65535)
@@ -97,7 +91,6 @@ def advance(AIN1, AIN2, BIN1, BIN2, speed):
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
-   
 
 def back (AIN1, AIN2, BIN1, BIN2, speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
@@ -108,7 +101,6 @@ def back (AIN1, AIN2, BIN1, BIN2, speed):
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
-
     
 def left (AIN1, AIN2, BIN1, BIN2, speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
@@ -119,7 +111,7 @@ def left (AIN1, AIN2, BIN1, BIN2, speed):
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
-        
+    
 def right (AIN1, AIN2, BIN1, BIN2, speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
@@ -129,5 +121,42 @@ def right (AIN1, AIN2, BIN1, BIN2, speed):
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
+    
+    
+def stop (AIN1, AIN2, BIN1, BIN2):
+    # Arreter le robot
+    AIN1.duty_cycle = 0
+    AIN2.duty_cycle = 0
+    BIN1.duty_cycle = 0
+    BIN2.duty_cycle = 0
+
+
+def left_wheel_back(AIN1, AIN2, BIN1, BIN2,speed):
+    # Convertir la vitesse en pourcentage en une valeur de PWM
+    pwm_value = set_speed(speed)
+
+    # Arrêter la roue droite
+    BIN1.duty_cycle = pwm_value
+
+def left_wheel_advance(AIN1, AIN2, BIN1, BIN2,speed):
+    # Convertir la vitesse en pourcentage en une valeur de PWM
+    pwm_value = set_speed(speed)
+
+    # Arrêter la roue droite
+    BIN2.duty_cycle = pwm_value
+    
+def right_wheel_advance(AIN1, AIN2, BIN1, BIN2,speed):
+    # Convertir la vitesse en pourcentage en une valeur de PWM
+    pwm_value = set_speed(speed)
+
+    # Arrêter la roue droite
+    AIN2.duty_cycle = pwm_value
+    
+def right_wheel_back(AIN1, AIN2, BIN1, BIN2,speed):
+    # Convertir la vitesse en pourcentage en une valeur de PWM
+    pwm_value = set_speed(speed)
+
+    # Arrêter la roue droite
+    AIN1.duty_cycle = pwm_value
     
     
