@@ -10,6 +10,7 @@ import time
 import board
 from digitalio import DigitalInOut, Direction, Pull
 from analogio import AnalogIn
+import pwmio
 
 # Setup the NeoPixel power pin
 #pixel_power = DigitalInOut(board.NEOPIXEL_POWER)
@@ -21,7 +22,6 @@ vbat_voltage = AnalogIn(board.BATTERY)
 # Setup the VBUS sense pin
 vbus_sense = DigitalInOut(board.VBUS_SENSE)
 vbus_sense.direction = Direction.INPUT
-
 
 # Obstacle declaration
 obstacleCmd = DigitalInOut(board.IO33)
@@ -74,3 +74,58 @@ def get_obstacle(obstacle_pos):
         return True
     else :
         return False
+    
+    
+def set_speed(speed):
+    # Convertir la vitesse de 0-100 à 0-65535 pour pwmio
+    pwm_value = int((speed / 100) * 65535)
+
+    return pwm_value
+    
+def advance(AIN1, AIN2, BIN1, BIN2, speed):
+    # Convertir la vitesse en pourcentage en une valeur de PWM
+    pwm_value = set_speed(speed)
+
+    # Faire avancer le robot à la vitesse spécifiée pendant 5 secondes
+    AIN1.duty_cycle = 0
+    AIN2.duty_cycle = pwm_value
+    BIN1.duty_cycle = 0
+    BIN2.duty_cycle = pwm_value
+
+def back (AIN1, AIN2, BIN1, BIN2, speed):
+    # Convertir la vitesse en pourcentage en une valeur de PWM
+    pwm_value = set_speed(speed)
+
+    # Faire avancer le robot à la vitesse spécifiée 
+    AIN1.duty_cycle = pwm_value
+    AIN2.duty_cycle = 0
+    BIN1.duty_cycle = pwm_value
+    BIN2.duty_cycle = 0
+    
+def left (AIN1, AIN2, BIN1, BIN2, speed):
+    # Convertir la vitesse en pourcentage en une valeur de PWM
+    pwm_value = set_speed(speed)
+
+    # Faire avancer le robot à la vitesse spécifiée 
+    AIN1.duty_cycle = 0
+    AIN2.duty_cycle = pwm_value
+    BIN1.duty_cycle = pwm_value
+    BIN2.duty_cycle = 0
+    
+def right (AIN1, AIN2, BIN1, BIN2, speed):
+    # Convertir la vitesse en pourcentage en une valeur de PWM
+    pwm_value = set_speed(speed)
+
+    # Faire avancer le robot à la vitesse spécifiée 
+    AIN1.duty_cycle = pwm_value
+    AIN2.duty_cycle = 0
+    BIN1.duty_cycle = 0
+    BIN2.duty_cycle = pwm_value
+    
+    
+def stop (AIN1, AIN2, BIN1, BIN2):
+    # Arreter le robot
+    AIN1.duty_cycle = 0
+    AIN2.duty_cycle = 0
+    BIN1.duty_cycle = 0
+    BIN2.duty_cycle = 0
