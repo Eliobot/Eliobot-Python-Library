@@ -97,7 +97,7 @@ def advance(AIN1, AIN2, BIN1, BIN2, speed):
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
-    stop (AIN1, AIN2, BIN1, BIN2)
+   
 
 def back (AIN1, AIN2, BIN1, BIN2, speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
@@ -108,7 +108,7 @@ def back (AIN1, AIN2, BIN1, BIN2, speed):
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
-    stop (AIN1, AIN2, BIN1, BIN2)
+
     
 def left (AIN1, AIN2, BIN1, BIN2, speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
@@ -119,8 +119,7 @@ def left (AIN1, AIN2, BIN1, BIN2, speed):
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
-    stop (AIN1, AIN2, BIN1, BIN2)
-    
+        
 def right (AIN1, AIN2, BIN1, BIN2, speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
@@ -130,6 +129,5 @@ def right (AIN1, AIN2, BIN1, BIN2, speed):
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
-    stop (AIN1, AIN2, BIN1, BIN2)
     
     
