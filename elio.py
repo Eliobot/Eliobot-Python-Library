@@ -160,3 +160,17 @@ def right_wheel_back(AIN1, AIN2, BIN1, BIN2,speed):
     AIN1.duty_cycle = pwm_value
     
     
+def oneCase(AIN1, AIN2, BIN1, BIN2,speed):
+    pwm_value = set_speed(speed)
+        # Faire avancer le robot à la vitesse spécifiée pendant 5 secondes
+    AIN1.duty_cycle = 0
+    AIN2.duty_cycle = pwm_value
+    BIN1.duty_cycle = 0
+    BIN2.duty_cycle = pwm_value
+    time.sleep(1.42)
+    stop(AIN1, AIN2, BIN1, BIN2)
+
+
+def playFrequency(buzzer,frequency):
+    buzzer.frequency = round(frequency)
+    buzzer.duty_cycle = 2**15  # 32768 value is 50% duty cycle, a square wave.
