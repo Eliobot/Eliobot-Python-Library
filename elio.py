@@ -41,7 +41,7 @@ def get_battery_voltage():
     # but the onboard voltage divider for VBAT sense is setup to deliver 1.1V to the ADC based on it's
     # default factory configuration.
     # This forumla should show the nominal 4.2V max capacity (approximately) when 5V is present and the
-    # VBAT is in charge state for a 1S LiPo battery with a max capacity of 4.2V   
+    # VBAT is in charge state for a 1S LiPo battery with a max capacity of 4.2V
     global vbat_voltage
     return (vbat_voltage.value / 5371)
 
@@ -96,7 +96,7 @@ def back (AIN1, AIN2, BIN1, BIN2, speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
 
-    # Faire avancer le robot à la vitesse spécifiée 
+    # Faire avancer le robot à la vitesse spécifiée
     AIN1.duty_cycle = pwm_value
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = pwm_value
@@ -106,7 +106,7 @@ def left (AIN1, AIN2, BIN1, BIN2, speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
 
-    # Faire avancer le robot à la vitesse spécifiée 
+    # Faire avancer le robot à la vitesse spécifiée
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = pwm_value
@@ -116,7 +116,7 @@ def right (AIN1, AIN2, BIN1, BIN2, speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
 
-    # Faire avancer le robot à la vitesse spécifiée 
+    # Faire avancer le robot à la vitesse spécifiée
     AIN1.duty_cycle = pwm_value
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = 0
@@ -134,43 +134,40 @@ def stop (AIN1, AIN2, BIN1, BIN2):
 def left_wheel_back(AIN1, AIN2, BIN1, BIN2,speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
-
-    # Arrêter la roue droite
     BIN1.duty_cycle = pwm_value
-
+    time.sleep(1)
+    
 def left_wheel_advance(AIN1, AIN2, BIN1, BIN2,speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
-
-    # Arrêter la roue droite
     BIN2.duty_cycle = pwm_value
+    time.sleep(1)
     
 def right_wheel_advance(AIN1, AIN2, BIN1, BIN2,speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
-
-    # Arrêter la roue droite
     AIN2.duty_cycle = pwm_value
+    time.sleep(1)
     
 def right_wheel_back(AIN1, AIN2, BIN1, BIN2,speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
-
-    # Arrêter la roue droite
     AIN1.duty_cycle = pwm_value
+    time.sleep(1)
     
     
-def oneCase(AIN1, AIN2, BIN1, BIN2,speed):
+def oneCase(AIN1, AIN2, BIN1, BIN2, speed):
     pwm_value = set_speed(speed)
-        # Faire avancer le robot à la vitesse spécifiée pendant 5 secondes
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
-    time.sleep(1.42)
+    time.sleep(1)
     stop(AIN1, AIN2, BIN1, BIN2)
-
-
+    
 def playFrequency(buzzer,frequency):
     buzzer.frequency = round(frequency)
     buzzer.duty_cycle = 2**15  # 32768 value is 50% duty cycle, a square wave.
+    
+
+
