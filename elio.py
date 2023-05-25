@@ -15,6 +15,8 @@ import pwmio
 # Setup the NeoPixel power pin
 #pixel_power = DigitalInOut(board.NEOPIXEL_POWER)
 #pixel_power.direction = Direction.OUTPUT
+# Built-in Neopixel declaration
+
 
 # Setup the BATTERY voltage sense pin
 vbat_voltage = AnalogIn(board.BATTERY)
@@ -28,7 +30,8 @@ obstacleCmd = DigitalInOut(board.IO33)
 obstacleCmd.direction = Direction.OUTPUT
 
 obstacleInput = [AnalogIn(board.IO4), AnalogIn(board.IO5), AnalogIn(board.IO6), AnalogIn(board.IO7)]
-
+lineInput = [AnalogIn(board.IO10), AnalogIn(board.IO11), AnalogIn(board.IO12), AnalogIn(board.IO13), AnalogIn(board.IO14)]
+threshold = 45000
 # Helper functions
 def set_pixel_power(state):
     """Enable or Disable power to the onboard NeoPixel to either show colour, or to reduce power fro deep sleep."""
@@ -169,5 +172,67 @@ def playFrequency(buzzer,frequency):
     buzzer.frequency = round(frequency)
     buzzer.duty_cycle = 2**15  # 32768 value is 50% duty cycle, a square wave.
     
+def get_line(obstacle_pos):
+    ambient = 0
+    lit = 0
+    value = 0
 
+    # Measure reflected IR
+    obstacleCmd.value = True
+    time.sleep(0.02)
+    lit = lineInput[obstacle_pos].value
+
+    # Measure ambient light
+    obstacleCmd.value = False
+    time.sleep(0.02)
+    ambient = lineInput[obstacle_pos].value
+
+    # Ambient - Reflected
+    value = ambient - lit
+
+    return value
+
+
+
+
+def followLine(AIN1, AIN2, BIN1, BIN2):
+    sensor1_value = get_line(0)
+    sensor2_value = get_line(2)
+    sensor3_value = get_line(4)
+
+    # Print sensor values
+    print(sensor1_value, sensor2_value, sensor3_value)
+
+    # Line following logic
+    if get_line(2) < threshold + 1500:
+        # Line detected by middle sensor, move forward
+        AIN1.duty_cycle = 0
+        AIN2.duty_cycle = 65535
+        BIN1.duty_cycle = 0
+        BIN2.duty_cycle = 65535
+
+    elif get_line(0) < threshold - 9500:
+        # Line detected by left sensor, turn left
+        AIN1.duty_cycle = 0
+        AIN2.duty_cycle = 8000
+        BIN1.duty_cycle = 8000
+        BIN2.duty_cycle = 0
+      
+
+    elif get_line(4) < threshold - 9500:
+        # Line detected by right sensor, turn right
+        AIN1.duty_cycle = 8000
+        AIN2.duty_cycle = 0
+        BIN1.duty_cycle = 0
+        BIN2.duty_cycle = 8000
+       
+    else:
+        # No line detected, reverse at a slower speed
+        AIN1.duty_cycle = 8000
+        AIN2.duty_cycle = 0
+        BIN1.duty_cycle = 8000
+        BIN2.duty_cycle = 0
+        
+
+    time.sleep(0.1)
 
