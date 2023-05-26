@@ -85,13 +85,13 @@ def get_obstacle(obstacle_pos):
     else :
         return False
     
-    
+# converts speed and set it
 def set_speed(speed):
     # Convertir la vitesse de 0-100 à 0-65535 pour pwmio
     pwm_value = int((speed / 100) * 65535)
 
     return pwm_value
-    
+#advance robot with speed
 def advance(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
@@ -101,7 +101,7 @@ def advance(speed):
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
-
+#back off the robot
 def back (speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
@@ -111,7 +111,7 @@ def back (speed):
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
-    
+#turn to the left
 def left (speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
@@ -121,7 +121,7 @@ def left (speed):
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
-    
+# turn to the right
 def right (speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
@@ -131,8 +131,7 @@ def right (speed):
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
-    
-    
+# Stop the robot
 def stop ():
     # Arreter le robot
     AIN1.duty_cycle = 0
@@ -140,32 +139,33 @@ def stop ():
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = 0
 
-
+# turn the left wheel backwards
 def left_wheel_back(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
     BIN1.duty_cycle = pwm_value
     time.sleep(1)
-    
+# turn the left wheel forwards
 def left_wheel_advance(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
     BIN2.duty_cycle = pwm_value
     time.sleep(1)
-    
+ 
+#turn the right wheel backwards
 def right_wheel_advance(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
     AIN2.duty_cycle = pwm_value
     time.sleep(1)
-    
+#turn the right wheel forwards
 def right_wheel_back(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
     AIN1.duty_cycle = pwm_value
     time.sleep(1)
     
-    
+#advance the robot of One case (1 case = 15cm)
 def oneCase(speed):
     pwm_value = set_speed(speed)
     AIN1.duty_cycle = 0
@@ -174,11 +174,11 @@ def oneCase(speed):
     BIN2.duty_cycle = pwm_value
     time.sleep(1)
     stop()
-    
+#play a frequency
 def playFrequency(buzzer,frequency):
     buzzer.frequency = round(frequency)
     buzzer.duty_cycle = 2**15  # 32768 value is 50% duty cycle, a square wave.
-    
+#return the value of the color sensor who is past in parameter
 def get_line(line_pos):
     ambient = 0
     lit = 0
@@ -201,7 +201,7 @@ def get_line(line_pos):
 
 
 
-
+# follow a black line
 def followLine():
     sensor1_value = get_line(0)
     sensor2_value = get_line(2)
