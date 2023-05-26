@@ -28,10 +28,17 @@ vbus_sense.direction = Direction.INPUT
 # Obstacle declaration
 obstacleCmd = DigitalInOut(board.IO33)
 obstacleCmd.direction = Direction.OUTPUT
-
 obstacleInput = [AnalogIn(board.IO4), AnalogIn(board.IO5), AnalogIn(board.IO6), AnalogIn(board.IO7)]
+
+# Line declaration
 lineInput = [AnalogIn(board.IO10), AnalogIn(board.IO11), AnalogIn(board.IO12), AnalogIn(board.IO13), AnalogIn(board.IO14)]
 threshold = 45000
+
+# Motor declaration
+AIN1 = pwmio.PWMOut(board.IO36)
+AIN2 = pwmio.PWMOut(board.IO38)
+BIN1 = pwmio.PWMOut(board.IO35)
+BIN2 = pwmio.PWMOut(board.IO37)
 # Helper functions
 def set_pixel_power(state):
     """Enable or Disable power to the onboard NeoPixel to either show colour, or to reduce power fro deep sleep."""
@@ -85,7 +92,7 @@ def set_speed(speed):
 
     return pwm_value
     
-def advance(AIN1, AIN2, BIN1, BIN2, speed):
+def advance(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
 
@@ -95,7 +102,7 @@ def advance(AIN1, AIN2, BIN1, BIN2, speed):
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
 
-def back (AIN1, AIN2, BIN1, BIN2, speed):
+def back (speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
 
@@ -105,7 +112,7 @@ def back (AIN1, AIN2, BIN1, BIN2, speed):
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
     
-def left (AIN1, AIN2, BIN1, BIN2, speed):
+def left (speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
 
@@ -115,7 +122,7 @@ def left (AIN1, AIN2, BIN1, BIN2, speed):
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
     
-def right (AIN1, AIN2, BIN1, BIN2, speed):
+def right (speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
 
@@ -126,7 +133,7 @@ def right (AIN1, AIN2, BIN1, BIN2, speed):
     BIN2.duty_cycle = pwm_value
     
     
-def stop (AIN1, AIN2, BIN1, BIN2):
+def stop ():
     # Arreter le robot
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = 0
@@ -134,32 +141,32 @@ def stop (AIN1, AIN2, BIN1, BIN2):
     BIN2.duty_cycle = 0
 
 
-def left_wheel_back(AIN1, AIN2, BIN1, BIN2,speed):
+def left_wheel_back(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
     BIN1.duty_cycle = pwm_value
     time.sleep(1)
     
-def left_wheel_advance(AIN1, AIN2, BIN1, BIN2,speed):
+def left_wheel_advance(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
     BIN2.duty_cycle = pwm_value
     time.sleep(1)
     
-def right_wheel_advance(AIN1, AIN2, BIN1, BIN2,speed):
+def right_wheel_advance(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
     AIN2.duty_cycle = pwm_value
     time.sleep(1)
     
-def right_wheel_back(AIN1, AIN2, BIN1, BIN2,speed):
+def right_wheel_back(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
     AIN1.duty_cycle = pwm_value
     time.sleep(1)
     
     
-def oneCase(AIN1, AIN2, BIN1, BIN2, speed):
+def oneCase(speed):
     pwm_value = set_speed(speed)
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
@@ -172,7 +179,7 @@ def playFrequency(buzzer,frequency):
     buzzer.frequency = round(frequency)
     buzzer.duty_cycle = 2**15  # 32768 value is 50% duty cycle, a square wave.
     
-def get_line(obstacle_pos):
+def get_line(line_pos):
     ambient = 0
     lit = 0
     value = 0
@@ -180,12 +187,12 @@ def get_line(obstacle_pos):
     # Measure reflected IR
     obstacleCmd.value = True
     time.sleep(0.02)
-    lit = lineInput[obstacle_pos].value
+    lit = lineInput[line_pos].value
 
     # Measure ambient light
     obstacleCmd.value = False
     time.sleep(0.02)
-    ambient = lineInput[obstacle_pos].value
+    ambient = lineInput[line_pos].value
 
     # Ambient - Reflected
     value = ambient - lit
@@ -195,7 +202,7 @@ def get_line(obstacle_pos):
 
 
 
-def followLine(AIN1, AIN2, BIN1, BIN2):
+def followLine():
     sensor1_value = get_line(0)
     sensor2_value = get_line(2)
     sensor3_value = get_line(4)
@@ -235,4 +242,5 @@ def followLine(AIN1, AIN2, BIN1, BIN2):
         
 
     time.sleep(0.1)
+
 
