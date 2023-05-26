@@ -173,7 +173,7 @@ def oneCase(speed):
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
     time.sleep(1)
-    stop(AIN1, AIN2, BIN1, BIN2)
+    stop()
     
 def playFrequency(buzzer,frequency):
     buzzer.frequency = round(frequency)
