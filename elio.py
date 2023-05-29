@@ -1,9 +1,3 @@
-# TinyS2 Helper Library
-# 2021 Seon Rozenblum, Unexpected Maker
-#
-# Project home:
-#   https://tinys2.io
-#
 
 # Import required libraries
 import time
@@ -11,12 +5,46 @@ import board
 from digitalio import DigitalInOut, Direction, Pull
 from analogio import AnalogIn
 import pwmio
+import busio
 
-# Setup the NeoPixel power pin
-#pixel_power = DigitalInOut(board.NEOPIXEL_POWER)
-#pixel_power.direction = Direction.OUTPUT
-# Built-in Neopixel declaration
 
+# SPI declaration
+spi = busio.SPI(board.IO30, MOSI=board.IO32, MISO=board.IO31)
+cs_pin = digitalio.DigitalInOut(board.IO29)
+cs_pin.direction = digitalio.Direction.OUTPUT
+spi_wp_pin = digitalio.DigitalInOut(board.IO28)
+spi_hd_pin = digitalio.DigitalInOut(board.IO29)
+spi_wp_pin.direction = digitalio.Direction.INPUT
+spi_hd_pin.direction = digitalio.Direction.OUTPUT
+
+# header declaration
+header_3_pin = digitalio.DigitalInOut(board.IO2)
+header_3_pin.direction = digitalio.Direction.INPUT
+header_3_pin.pull = digitalio.Pull.UP
+
+#SDA SCL declaration
+i2c = busio.I2C(board.IO8, board.IO9)
+
+# RX TX declaration
+uart = busio.UART(board.IO43, board.IO44)
+
+# Line led Declaration
+lineLed = digitalio.DigitalInOut(board.IO18)
+lineLed.direction = digitalio.Direction.OUTPUT
+
+
+# buzzer Declaration
+buzzerPin = digitalio.DigitalInOut(board.IO17)
+buzzerPin.direction = digitalio.Direction.OUTPUT
+
+
+# boot Declaration
+boot = digitalio.DigitalInOut(board.IO0)
+boot.direction = digitalio.Direction.INPUT
+
+# IR_Cmd declaration
+ir_cmd_pin = digitalio.DigitalInOut(board.IO34)
+ir_cmd_pin.direction = digitalio.Direction.OUTPUT
 
 # Setup the BATTERY voltage sense pin
 vbat_voltage = AnalogIn(board.BATTERY)
