@@ -1,5 +1,4 @@
 
-# Import required libraries
 import time
 import board
 from digitalio import DigitalInOut, Direction, Pull
@@ -8,43 +7,27 @@ import pwmio
 import busio
 
 
-# SPI declaration
-spi = busio.SPI(board.IO30, MOSI=board.IO32, MISO=board.IO31)
-cs_pin = digitalio.DigitalInOut(board.IO29)
-cs_pin.direction = digitalio.Direction.OUTPUT
-spi_wp_pin = digitalio.DigitalInOut(board.IO28)
-spi_hd_pin = digitalio.DigitalInOut(board.IO29)
-spi_wp_pin.direction = digitalio.Direction.INPUT
-spi_hd_pin.direction = digitalio.Direction.OUTPUT
+# IR_Cmd declaration
+ir_cmd_pin = DigitalInOut(board.IO34)
 
-# header declaration
-header_3_pin = digitalio.DigitalInOut(board.IO2)
-header_3_pin.direction = digitalio.Direction.INPUT
-header_3_pin.pull = digitalio.Pull.UP
+# boot Declaration
+boot = DigitalInOut(board.IO0)
 
-#SDA SCL declaration
-i2c = busio.I2C(board.IO8, board.IO9)
+
+# Line led Declaration
+lineLed = DigitalInOut(board.IO18)
+
 
 # RX TX declaration
 uart = busio.UART(board.IO43, board.IO44)
 
-# Line led Declaration
-lineLed = digitalio.DigitalInOut(board.IO18)
-lineLed.direction = digitalio.Direction.OUTPUT
+#SDA SCL declaration
+i2c = busio.I2C(board.IO8, board.IO9)
 
 
-# buzzer Declaration
-buzzerPin = digitalio.DigitalInOut(board.IO17)
-buzzerPin.direction = digitalio.Direction.OUTPUT
+# header declaration
+header_3_pin = DigitalInOut(board.IO2)
 
-
-# boot Declaration
-boot = digitalio.DigitalInOut(board.IO0)
-boot.direction = digitalio.Direction.INPUT
-
-# IR_Cmd declaration
-ir_cmd_pin = digitalio.DigitalInOut(board.IO34)
-ir_cmd_pin.direction = digitalio.Direction.OUTPUT
 
 # Setup the BATTERY voltage sense pin
 vbat_voltage = AnalogIn(board.BATTERY)
@@ -206,7 +189,7 @@ def oneCase(speed):
 def playFrequency(buzzer,frequency):
     buzzer.frequency = round(frequency)
     buzzer.duty_cycle = 2**15  # 32768 value is 50% duty cycle, a square wave.
-#return the value of the color sensor who is past in parameter
+#return the value of the color sensor who is past in
 def get_line(line_pos):
     ambient = 0
     lit = 0
@@ -229,7 +212,7 @@ def get_line(line_pos):
 
 
 
-# follow a black line
+
 def followLine():
     sensor1_value = get_line(0)
     sensor2_value = get_line(2)
@@ -270,5 +253,21 @@ def followLine():
         
 
     time.sleep(0.1)
+    
+def buzzerInit():
+    buzzer_pin = pwmio.PWMOut(board.IO17, variable_frequency=True)
+    return buzzer_pin
+
+def play_note(note, duration,NOTES_FREQUENCIES):
+  if note in NOTES_FREQUENCIES:
+       frequency = NOTES_FREQUENCIES[note]
+       if frequency != 0.1:
+           buzzer = buzzerInit()
+           playFrequency(buzzer, frequency)
+           time.sleep(duration)
+           buzzer.deinit()
+       else:
+           time.sleep(duration)
+
 
 
