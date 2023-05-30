@@ -51,6 +51,11 @@ AIN2 = pwmio.PWMOut(board.IO38)
 BIN1 = pwmio.PWMOut(board.IO35)
 BIN2 = pwmio.PWMOut(board.IO37)
 # Helper functions
+
+def buzzerInit():
+    buzzer_pin = pwmio.PWMOut(board.IO17, variable_frequency=True)
+    return buzzer_pin
+    
 def set_pixel_power(state):
     """Enable or Disable power to the onboard NeoPixel to either show colour, or to reduce power fro deep sleep."""
     global pixel_power
@@ -187,6 +192,7 @@ def oneCase(speed):
     stop()
 #play a frequency
 def playFrequency(buzzer,frequency):
+    buzzer = buzzerInit()
     buzzer.frequency = round(frequency)
     buzzer.duty_cycle = 2**15  # 32768 value is 50% duty cycle, a square wave.
 #return the value of the color sensor who is past in
@@ -254,9 +260,6 @@ def followLine():
 
     time.sleep(0.1)
     
-def buzzerInit():
-    buzzer_pin = pwmio.PWMOut(board.IO17, variable_frequency=True)
-    return buzzer_pin
 
 def play_note(note, duration,NOTES_FREQUENCIES):
   if note in NOTES_FREQUENCIES:
