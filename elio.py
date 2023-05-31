@@ -191,10 +191,12 @@ def oneCase(speed):
     time.sleep(1)
     stop()
 #play a frequency
-def playFrequency(buzzer,frequency):
+def playFrequency(frequency , waitTime):
     buzzer = buzzerInit()
     buzzer.frequency = round(frequency)
     buzzer.duty_cycle = 2**15  # 32768 value is 50% duty cycle, a square wave.
+    time.sleep(waitTime)
+    buzzer.deinit()
 #return the value of the color sensor who is past in
 def get_line(line_pos):
     ambient = 0
@@ -265,12 +267,10 @@ def play_note(note, duration,NOTES_FREQUENCIES):
   if note in NOTES_FREQUENCIES:
        frequency = NOTES_FREQUENCIES[note]
        if frequency != 0.1:
-           buzzer = buzzerInit()
-           playFrequency(buzzer, frequency)
-           time.sleep(duration)
-           buzzer.deinit()
+           playFrequency(frequency , duration)
        else:
            time.sleep(duration)
+
 
 
 
