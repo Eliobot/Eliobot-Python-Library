@@ -104,6 +104,8 @@ def get_obstacle(obstacle_pos):
 # converts speed and set it
 def set_speed(speed):
     # Convertir la vitesse de 0-100 à 0-65535 pour pwmio
+    if speed < 10 :
+        speed += 10
     pwm_value = int((speed / 100) * 65535)
 
     return pwm_value
@@ -112,7 +114,7 @@ def advance(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
 
-    # Faire avancer le robot à la vitesse spécifiée pendant 5 secondes
+    # Faire avancer le robot à la vitesse spécifiée 
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = 0
