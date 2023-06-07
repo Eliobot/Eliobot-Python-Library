@@ -104,8 +104,10 @@ def get_obstacle(obstacle_pos):
 # converts speed and set it
 def set_speed(speed):
     # Convertir la vitesse de 0-100 à 0-65535 pour pwmio
-    if speed < 10 :
-        speed += 10
+    if speed > 100:
+        speed = 100
+    if speed < 15 :
+        speed += 15
     pwm_value = int((speed / 100) * 65535)
 
     return pwm_value
@@ -114,7 +116,7 @@ def advance(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
 
-    # Faire avancer le robot à la vitesse spécifiée 
+    # Faire avancer le robot à la vitesse spécifiée
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = 0
@@ -162,26 +164,26 @@ def left_wheel_back(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
     BIN1.duty_cycle = pwm_value
-    time.sleep(1)
+
 # turn the left wheel forwards
 def left_wheel_advance(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
     BIN2.duty_cycle = pwm_value
-    time.sleep(1)
+
  
 #turn the right wheel backwards
 def right_wheel_advance(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
     AIN2.duty_cycle = pwm_value
-    time.sleep(1)
+
 #turn the right wheel forwards
 def right_wheel_back(speed):
     # Convertir la vitesse en pourcentage en une valeur de PWM
     pwm_value = set_speed(speed)
     AIN1.duty_cycle = pwm_value
-    time.sleep(1)
+
     
 #advance the robot of One case (1 case = 15cm)
 def oneCase(speed):
@@ -272,6 +274,9 @@ def play_note(note, duration,NOTES_FREQUENCIES):
            playFrequency(frequency , duration)
        else:
            time.sleep(duration)
+
+
+
 
 
 
