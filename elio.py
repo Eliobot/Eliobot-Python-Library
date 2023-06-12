@@ -1,3 +1,11 @@
+# Eliobot robot Library
+# 2023 ELIO, B3 ROBOTICS
+#
+# Project home:
+#   https://eliobot.com
+#
+
+#--------------- LIBRARIES IMPORT ---------------#
 
 import time
 import board
@@ -7,27 +15,26 @@ import pwmio
 import busio
 
 
-# IR_Cmd declaration
+
+#--------------- PINS DECLARATION ---------------#
+
+# IR_Cmd pin declaration
 ir_cmd_pin = DigitalInOut(board.IO34)
 
-# boot Declaration
+# boot pin declaration
 boot = DigitalInOut(board.IO0)
 
-
-# Line led Declaration
+# Line led declaration
 lineLed = DigitalInOut(board.IO18)
 
-
-# RX TX declaration
+# UART pins declaration
 uart = busio.UART(board.IO43, board.IO44)
 
-#SDA SCL declaration
+# I2C pins declaration
 i2c = busio.I2C(board.IO8, board.IO9)
 
-
-# header declaration
+# Header pins declaration
 header_3_pin = DigitalInOut(board.IO2)
-
 
 # Setup the BATTERY voltage sense pin
 vbat_voltage = AnalogIn(board.BATTERY)
@@ -36,32 +43,28 @@ vbat_voltage = AnalogIn(board.BATTERY)
 vbus_sense = DigitalInOut(board.VBUS_SENSE)
 vbus_sense.direction = Direction.INPUT
 
-# Obstacle declaration
+# Obstacle input Pins declaration
 obstacleCmd = DigitalInOut(board.IO33)
 obstacleCmd.direction = Direction.OUTPUT
 obstacleInput = [AnalogIn(board.IO4), AnalogIn(board.IO5), AnalogIn(board.IO6), AnalogIn(board.IO7)]
 
-# Line declaration
+# Line input Pins declaration
 lineInput = [AnalogIn(board.IO10), AnalogIn(board.IO11), AnalogIn(board.IO12), AnalogIn(board.IO13), AnalogIn(board.IO14)]
 threshold = 45000
 
-# Motor declaration
+# Motor Driver Pins declaration
 AIN1 = pwmio.PWMOut(board.IO36)
 AIN2 = pwmio.PWMOut(board.IO38)
 BIN1 = pwmio.PWMOut(board.IO35)
 BIN2 = pwmio.PWMOut(board.IO37)
-# Helper functions
 
-def buzzerInit():
-    buzzer_pin = pwmio.PWMOut(board.IO17, variable_frequency=True)
-    return buzzer_pin
-    
-def set_pixel_power(state):
-    """Enable or Disable power to the onboard NeoPixel to either show colour, or to reduce power fro deep sleep."""
-    global pixel_power
-    pixel_power.value = state
-    
-def get_battery_voltage():
+
+
+
+#--------------- INTERNAL VOLTAGES ---------------#
+
+# Measure the battery voltage
+def getBatteryVoltage():
     """Get the approximate battery voltage."""
     # I don't really understand what CP is doing under the hood here for the ADC range & calibration,
     # but the onboard voltage divider for VBAT sense is setup to deliver 1.1V to the ADC based on it's
@@ -71,12 +74,19 @@ def get_battery_voltage():
     global vbat_voltage
     return (vbat_voltage.value / 5371)
 
-def get_vbus_present():
+
+# Detect if there is a voltage on the USB connector
+def getVbusPresent():
     """Detect if VBUS (5V) power source is present"""
     global vbus_sense
     return vbus_sense.value
 
-def rgb_color_wheel(wheel_pos):
+
+
+#--------------- COLORS ---------------#
+
+# Let the rainbow shine
+def rgbColorWheel(wheel_pos):
     """Color wheel to allow for cycling through the rainbow of RGB colors."""
     wheel_pos = wheel_pos % 255
 
@@ -88,8 +98,13 @@ def rgb_color_wheel(wheel_pos):
     else:
         wheel_pos -= 170
         return wheel_pos * 3, 255 - wheel_pos * 3, 0
-    
-def get_obstacle(obstacle_pos):
+
+
+
+#--------------- OBSTACLE SENSORS ---------------#
+
+# Get the obstacles sensors value from Left (position 0) to Right (position 3) and back (postion 4)
+def getObstacle(obstacle_pos):
     obstacle_pos = obstacle_pos
     
     value = 0
@@ -100,109 +115,150 @@ def get_obstacle(obstacle_pos):
         return True
     else :
         return False
-    
-# converts speed and set it
-def set_speed(speed):
-    # Convertir la vitesse de 0-100 à 0-65535 pour pwmio
-    if speed > 100:
-        speed = 100
-    if speed < 15 :
-        speed += 15
-    pwm_value = int((speed / 100) * 65535)
 
-    return pwm_value
-#advance robot with speed
-def advance(speed):
-    # Convertir la vitesse en pourcentage en une valeur de PWM
-    pwm_value = set_speed(speed)
+
+
+#--------------- MOTORS ---------------#
+
+# Convert the speed from 0 - 100% to 0 - 65535 for pwmio usage
+def setSpeed(speedValue):
+    # Some filtering to fit the 0-100% range and increasing the minimum value (motors won't spin under 15%)
+    if speedValue > 100:
+        speedValue = 100
+    elif speedValue < 15:
+        speedValue += 15
+        
+    pwmValue = int((speedValue / 100) * 65535)
+
+    return pwmValue
+
+
+# Move the robot Forward (0 - 100% speed)
+def moveForward(speed):
+    pwm_value = setSpeed(speed)
 
     # Faire avancer le robot à la vitesse spécifiée
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
-#back off the robot
-def back (speed):
-    # Convertir la vitesse en pourcentage en une valeur de PWM
-    pwm_value = set_speed(speed)
+    
+    
+# Move the robot Backward (0 - 100% speed)
+def moveBackward(speed):
+    pwm_value = setSpeed(speed)
 
     # Faire avancer le robot à la vitesse spécifiée
     AIN1.duty_cycle = pwm_value
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
-#turn to the left
-def left (speed):
-    # Convertir la vitesse en pourcentage en une valeur de PWM
-    pwm_value = set_speed(speed)
+    
+    
+# Turn the robot to the Left (0 - 100% speed)
+def turnLeft(speed):
+    pwm_value = setSpeed(speed)
 
     # Faire avancer le robot à la vitesse spécifiée
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
+    
+    
 # turn to the right
-def right (speed):
-    # Convertir la vitesse en pourcentage en une valeur de PWM
-    pwm_value = set_speed(speed)
+def turnRight(speed):
+    pwm_value = setSpeed(speed)
 
     # Faire avancer le robot à la vitesse spécifiée
     AIN1.duty_cycle = pwm_value
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
+    
+
 # Stop the robot
-def stop ():
-    # Arreter le robot
+def stop():
+    AIN1.duty_cycle = 2**16-1
+    AIN2.duty_cycle = 2**16-1
+    BIN1.duty_cycle = 2**16-1
+    BIN2.duty_cycle = 2**16-1
+    
+    
+# Slow the robot and stop
+def slow():
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = 0
 
-# turn the left wheel backwards
-def left_wheel_back(speed):
-    # Convertir la vitesse en pourcentage en une valeur de PWM
-    pwm_value = set_speed(speed)
-    BIN1.duty_cycle = pwm_value
 
-# turn the left wheel forwards
-def left_wheel_advance(speed):
-    # Convertir la vitesse en pourcentage en une valeur de PWM
-    pwm_value = set_speed(speed)
+# Spin the left wheel forward (0 - 100% speed)
+def spinLeftWheelForward(speed):
+    pwm_value = setSpeed(speed)
+ 
     BIN2.duty_cycle = pwm_value
 
- 
-#turn the right wheel backwards
-def right_wheel_advance(speed):
-    # Convertir la vitesse en pourcentage en une valeur de PWM
-    pwm_value = set_speed(speed)
+# Spin the left wheel backward (0 - 100% speed)
+def spinLeftWheelBackward(speed):
+    pwm_value = setSpeed(speed)
+    BIN1.duty_cycle = pwm_value
+
+# Spin the right wheel forward (0 - 100% speed)
+def spinRightWheelForward(speed):
+    pwm_value = setSpeed(speed)
     AIN2.duty_cycle = pwm_value
 
-#turn the right wheel forwards
-def right_wheel_back(speed):
-    # Convertir la vitesse en pourcentage en une valeur de PWM
-    pwm_value = set_speed(speed)
+# Spin the right wheel backward (0 - 100% speed)
+def spinRightWheelBackward(speed):
+    pwm_value = setSpeed(speed)
     AIN1.duty_cycle = pwm_value
 
     
-#advance the robot of One case (1 case = 15cm)
-def oneCase(speed):
-    pwm_value = set_speed(speed)
+# Move the robot forward one step (= approx. 15cm)
+def moveOneStep(speed):
+    pwm_value = setSpeed(speed)
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
     time.sleep(1)
     stop()
-#play a frequency
-def playFrequency(frequency , waitTime):
+
+
+
+#--------------- BUZZER ---------------#
+
+# Buzzer initialisation
+def buzzerInit():
+    buzzerPin = pwmio.PWMOut(board.IO17, variable_frequency=True)
+    return buzzerPin
+    
+    
+# Play a frequency (in Hertz) for a given time (in seconds)
+def playFrequency(frequency , waitTime, volume):
     buzzer = buzzerInit()
     buzzer.frequency = round(frequency)
-    buzzer.duty_cycle = 2**15  # 32768 value is 50% duty cycle, a square wave.
+    buzzer.duty_cycle = int(2 ** (0.06*volume + 9))  # 32768 value is 50% duty cycle, to get a square wave.
     time.sleep(waitTime)
     buzzer.deinit()
-#return the value of the color sensor who is past in
-def get_line(line_pos):
+
+
+# Play a note (C, D, E, F, G, A or B) for a given time (in seconds)
+def playNote(note, duration, NOTES_FREQUENCIES, volume):
+  if note in NOTES_FREQUENCIES:
+       frequency = NOTES_FREQUENCIES[note]
+       if frequency != 0.1:
+           playFrequency(frequency , duration, volume)
+       else:
+           time.sleep(duration)
+
+
+
+#--------------- LINE FOLLOWING ---------------#
+           
+# Get the line sensors value from Left (position 0) to Right (position 4)
+def getLine(line_pos):
     ambient = 0
     lit = 0
     value = 0
@@ -223,8 +279,7 @@ def get_line(line_pos):
     return value
 
 
-
-
+# Example function to follow a black line on white paper
 def followLine():
     sensor1_value = get_line(0)
     sensor2_value = get_line(2)
@@ -263,21 +318,5 @@ def followLine():
         BIN1.duty_cycle = 8000
         BIN2.duty_cycle = 0
         
-
     time.sleep(0.1)
     
-
-def play_note(note, duration,NOTES_FREQUENCIES):
-  if note in NOTES_FREQUENCIES:
-       frequency = NOTES_FREQUENCIES[note]
-       if frequency != 0.1:
-           playFrequency(frequency , duration)
-       else:
-           time.sleep(duration)
-
-
-
-
-
-
-
