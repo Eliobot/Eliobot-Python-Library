@@ -1,3 +1,12 @@
+# Eliobot robot Library
+# 2023 ELIO, B3 ROBOTICS
+#
+# Project home:
+#   https://eliobot.com
+#
+
+#--------------- LIBRARIES IMPORT ---------------#
+
 import time
 import board
 from digitalio import DigitalInOut, Direction, Pull
