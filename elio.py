@@ -1,12 +1,3 @@
-# Eliobot robot Library
-# 2023 ELIO, B3 ROBOTICS
-#
-# Project home:
-#   https://eliobot.com
-#
-
-#--------------- LIBRARIES IMPORT ---------------#
-
 import time
 import board
 from digitalio import DigitalInOut, Direction, Pull
@@ -64,7 +55,7 @@ BIN2 = pwmio.PWMOut(board.IO37)
 #--------------- INTERNAL VOLTAGES ---------------#
 
 # Measure the battery voltage
-def getBatteryVoltage():
+def get_battery_voltage():
     """Get the approximate battery voltage."""
     # I don't really understand what CP is doing under the hood here for the ADC range & calibration,
     # but the onboard voltage divider for VBAT sense is setup to deliver 1.1V to the ADC based on it's
@@ -76,7 +67,7 @@ def getBatteryVoltage():
 
 
 # Detect if there is a voltage on the USB connector
-def getVbusPresent():
+def get_vbus_present():
     """Detect if VBUS (5V) power source is present"""
     global vbus_sense
     return vbus_sense.value
@@ -86,7 +77,7 @@ def getVbusPresent():
 #--------------- COLORS ---------------#
 
 # Let the rainbow shine
-def rgbColorWheel(wheel_pos):
+def rgb_color_wheel(wheel_pos):
     """Color wheel to allow for cycling through the rainbow of RGB colors."""
     wheel_pos = wheel_pos % 255
 
@@ -197,22 +188,29 @@ def motorSlow():
 def spinLeftWheelForward(speed):
     pwm_value = setSpeed(speed)
  
+    BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
 
 # Spin the left wheel backward (0 - 100% speed)
 def spinLeftWheelBackward(speed):
     pwm_value = setSpeed(speed)
+    
     BIN1.duty_cycle = pwm_value
-
+    BIN2.duty_cycle = 0
+    
 # Spin the right wheel forward (0 - 100% speed)
 def spinRightWheelForward(speed):
     pwm_value = setSpeed(speed)
+    
+    AIN1.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
 
 # Spin the right wheel backward (0 - 100% speed)
 def spinRightWheelBackward(speed):
     pwm_value = setSpeed(speed)
+    
     AIN1.duty_cycle = pwm_value
+    AIN2.duty_cycle = 0
 
     
 # Move the robot forward one step (= approx. 15cm)
@@ -223,7 +221,7 @@ def moveOneStep(speed):
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
     time.sleep(1)
-    stop()
+    motorStop()
 
 
 
@@ -281,22 +279,22 @@ def getLine(line_pos):
 
 # Example function to follow a black line on white paper
 def followLine():
-    sensor1_value = get_line(0)
-    sensor2_value = get_line(2)
-    sensor3_value = get_line(4)
+    sensor1_value = getLine(0)
+    sensor2_value = getLine(2)
+    sensor3_value = getLine(4)
 
     # Print sensor values
     print(sensor1_value, sensor2_value, sensor3_value)
 
     # Line following logic
-    if get_line(2) < threshold + 1500:
+    if sensor2_value(2) < threshold + 1500:
         # Line detected by middle sensor, move forward
         AIN1.duty_cycle = 0
         AIN2.duty_cycle = 65535
         BIN1.duty_cycle = 0
         BIN2.duty_cycle = 65535
 
-    elif get_line(0) < threshold - 9500:
+    elif sensor1_value(0) < threshold - 9500:
         # Line detected by left sensor, turn left
         AIN1.duty_cycle = 0
         AIN2.duty_cycle = 8000
@@ -304,7 +302,7 @@ def followLine():
         BIN2.duty_cycle = 0
       
 
-    elif get_line(4) < threshold - 9500:
+    elif sensor3_value(4) < threshold - 9500:
         # Line detected by right sensor, turn right
         AIN1.duty_cycle = 8000
         AIN2.duty_cycle = 0
@@ -320,3 +318,9 @@ def followLine():
         
     time.sleep(0.1)
     
+
+
+
+
+
+
