@@ -178,7 +178,7 @@ def turnRight(speed):
     
 
 # Stop the robot
-def stop():
+def motorStop():
     AIN1.duty_cycle = 2**16-1
     AIN2.duty_cycle = 2**16-1
     BIN1.duty_cycle = 2**16-1
@@ -186,7 +186,7 @@ def stop():
     
     
 # Slow the robot and stop
-def slow():
+def motorSlow():
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = 0
