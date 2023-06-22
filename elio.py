@@ -296,14 +296,14 @@ def followLine():
     print(sensor1_value, sensor2_value, sensor3_value)
 
     # Line following logic
-    if sensor2_value(2) < threshold + 1500:
+    if sensor2_value < threshold + 1500:
         # Line detected by middle sensor, move forward
         AIN1.duty_cycle = 0
         AIN2.duty_cycle = 65535
         BIN1.duty_cycle = 0
         BIN2.duty_cycle = 65535
 
-    elif sensor1_value(0) < threshold - 9500:
+    elif sensor1_value < threshold - 9500:
         # Line detected by left sensor, turn left
         AIN1.duty_cycle = 0
         AIN2.duty_cycle = 8000
@@ -311,7 +311,7 @@ def followLine():
         BIN2.duty_cycle = 0
       
 
-    elif sensor3_value(4) < threshold - 9500:
+    elif sensor3_value < threshold - 9500:
         # Line detected by right sensor, turn right
         AIN1.duty_cycle = 8000
         AIN2.duty_cycle = 0
