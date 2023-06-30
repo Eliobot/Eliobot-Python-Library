@@ -134,7 +134,7 @@ def setSpeed(speedValue):
 
 
 # Move the robot Forward (0 - 100% speed)
-def moveForward(speed):
+def moveForward(speed = 100):
     pwm_value = setSpeed(speed)
 
     # Faire avancer le robot à la vitesse spécifiée
@@ -145,7 +145,7 @@ def moveForward(speed):
     
     
 # Move the robot Backward (0 - 100% speed)
-def moveBackward(speed):
+def moveBackward(speed = 100):
     pwm_value = setSpeed(speed)
 
     # Faire avancer le robot à la vitesse spécifiée
@@ -156,7 +156,7 @@ def moveBackward(speed):
     
     
 # Turn the robot to the Left (0 - 100% speed)
-def turnLeft(speed):
+def turnLeft(speed = 100):
     pwm_value = setSpeed(speed)
 
     # Faire avancer le robot à la vitesse spécifiée
@@ -167,7 +167,7 @@ def turnLeft(speed):
     
     
 # turn to the right
-def turnRight(speed):
+def turnRight(speed = 100):
     pwm_value = setSpeed(speed)
 
     # Faire avancer le robot à la vitesse spécifiée
@@ -194,28 +194,28 @@ def motorSlow():
 
 
 # Spin the left wheel forward (0 - 100% speed)
-def spinLeftWheelForward(speed):
+def spinLeftWheelForward(speed = 100):
     pwm_value = setSpeed(speed)
  
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
 
 # Spin the left wheel backward (0 - 100% speed)
-def spinLeftWheelBackward(speed):
+def spinLeftWheelBackward(speed = 100):
     pwm_value = setSpeed(speed)
     
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
     
 # Spin the right wheel forward (0 - 100% speed)
-def spinRightWheelForward(speed):
+def spinRightWheelForward(speed = 100):
     pwm_value = setSpeed(speed)
     
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
 
 # Spin the right wheel backward (0 - 100% speed)
-def spinRightWheelBackward(speed):
+def spinRightWheelBackward(speed = 100):
     pwm_value = setSpeed(speed)
     
     AIN1.duty_cycle = pwm_value
@@ -223,7 +223,7 @@ def spinRightWheelBackward(speed):
 
     
 # Move the robot forward one step (= approx. 15cm)
-def moveOneStep(speed):
+def moveOneStep(speed = 100):
     pwm_value = setSpeed(speed)
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
