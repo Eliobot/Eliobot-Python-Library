@@ -1,4 +1,4 @@
-# Eliobot robot Library
+# Eliobot robot Library v1.1
 # 2023 ELIO, B3 ROBOTICS
 #
 # Project home:
