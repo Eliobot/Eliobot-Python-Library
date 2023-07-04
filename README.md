@@ -1,92 +1,198 @@
-# Python-Library
+# Documentation Python-Library
+
+## Fonction set_pixel_power 
+La fonction set_pixel_power est utilisée pour activer ou désactiver l'alimentation de la LED intégrée. Elle prend en paramètre un état (state) et la fonction utilise une variable globale pixel_power pour pouvoir l'utiliser dans différentes fonctions.
 
 
 
-## Getting started
+## Fonction get_battery_voltage
+La fonction get_battery_voltage permet de récupérer approximativement la tension de la batterie 
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
 
-## Add your files
+## Fonction get_vbus_present
+Le code utilise une variable globale vbus_sense et retourne la valeur de cette variable. La variable vbus_sense est utilisée pour détecter si une tension VBUS (5V) est présente. Si la valeur retournée est True, cela indique que la source d'alimentation VBUS est présente. Sinon, si la valeur retournée est False, cela signifie que la source d'alimentation VBUS n'est pas détectée.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/eliobot/python-library.git
-git branch -M main
-git push -uf origin main
-```
 
-## Integrate with your tools
+## Fonction rgb_color_wheel
+La fonction rgb_color_wheel permet de créer une séquence de couleurs RVB en utilisant la "roue des couleurs". Cette roue représente les différentes couleurs de l'arc-en-ciel (rouge, orange, jaune, vert, bleu, violet) et permet de les parcourir progressivement.
 
-- [ ] [Set up project integrations](https://gitlab.com/eliobot/python-library/-/settings/integrations)
+Le code de la fonction prend en compte une position dans cette roue des couleurs, représentée par la valeur wheel_pos. Pour s'assurer que cette valeur reste dans la plage valide, le code utilise l'opération "modulo" en la divisant par 255. Cela signifie que lorsque wheel_pos atteint 255, il revient à 0 et continue à augmenter progressivement.
 
-## Collaborate with your team
+En fonction de la position dans la roue des couleurs, la fonction détermine quelle couleur RVB retourner. Le code utilise trois plages de valeurs : de 0 à 84, de 85 à 169, et de 170 à 254.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+Dans la première plage (0 à 84), la fonction retourne des valeurs RVB où le rouge diminue progressivement de 255 à 0, le vert est nul, et le bleu augmente progressivement de 0 à 255. Cela représente les couleurs allant du rouge à l'orange.
 
-## Test and Deploy
+Dans la deuxième plage (85 à 169), le rouge est nul, le vert augmente progressivement de 0 à 255, et le bleu diminue progressivement de 255 à 0. Cela représente les couleurs allant du jaune au bleu.
 
-Use the built-in continuous integration in GitLab.
+Dans la troisième plage (170 à 254), le rouge augmente progressivement de 0 à 255, le vert diminue progressivement de 255 à 0, et le bleu est nul. Cela représente les couleurs allant du vert au violet.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
 
-***
 
-# Editing this README
+## Fonction get_obstacle
+La fonction get_obstacle permet de détecter s’il y a un obstacle devant ou derrière le robot grâce à des capteurs infrarouge qui sont référencés dans un tableau obstacleInput. En passant un nombre compris dans la taille du tableau 0 à 3 en paramètre la fonction renvoie True ou False selon la valeur récupérer par le capteur. 
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Les capteurs infrarouges sont assignés à des broches et ces broches sont elles-mêmes assignées à un nombre allant de 0 à 3. Si Obstacle_pos = 0 on regarde s’il y a un obstacle à gauche du robot. Le capteur envoie et réceptionne un rayon infrarouge et selon la valeur qui est retournée on peut savoir s’il y a un obstacle proche. Si la valeur retournée est inférieur à 10000 alors la réponse sera True et si la valeur est supérieur à 10000 alors la réponse sera False. 
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+C'est exactement la même chose pour les 3 autres capteurs 
+    Si l'obstacle_pos = 1 on regarde s’il y a un obstacle au milieu.
+    Si l'obstacle_pos = 2 on regarde s’il y a un obstacle à gauche.
+    Si l'obstacle_pos = 3 on regarde s’il y a un obstacle derrière.
+ 
+ 
+    
+    
+## Fonction set_speed 
+Cette fonction prend en paramètre un int compris entre 0 et 100 qui correspond au pourcentage de la vitesse du robot. 100 % vitesse max et 0% vitesse minimale cependant si speed est entre 0 et 10 le robot n'avance pas, d'où la vérification qui permet de rajouter 10 pour que le robot puisse quand même avancer. Puis nous convertissons la valeur des pourcentages en valeur réelle qui permet de donner une vitesse au robot. La plage de fonctionnement du robot est de 0 à 65535, 65535 correspondants à 100 % de la vitesse du robot et 0 à 0%.
 
-## Name
-Choose a self-explaining name for your project.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+## Fonction advance
+Cette fonction permet de faire avancer le robot. Elle prend en paramètre une vitesse comprise entre 0 et 100% qui sera directement convertie en vitesse pour le robot grâce à la fonction set_speed puis elle est stockée dans une variable. Le robot à 2 moteurs pour avancer. 
+        AIN1 permet de faire reculer la roue droite vers l'arrière
+        AIN2 permet de faire avancer la roue droite vers l'avant
+        BIN1 permet de faire reculer la roue gauche vers l'arrière
+        BIN2 permet de faire avancer la roue gauche vers l'avant
+        
+On donne donc une vitesse aux 2 variables qui font avancer le robot soit AIN2 et BIN2.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## Fonction back
+Cette fonction permet de faire reculer le robot. Elle prend en paramètre une vitesse comprise entre 0 et 100% qui sera directement convertie en vitesse pour le robot grâce à la fonction set_speed puis elle est stockée dans une variable. Le robot à 2 moteurs pour reculer  
+        AIN1 permet de faire reculer la roue droite vers l'arrière
+        AIN2 permet de faire avancer la roue droite vers l'avant
+        BIN1 permet de faire reculer la roue gauche vers l'arrière
+        BIN2 permet de faire avancer la roue gauche vers l'avant
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+On donne donc une vitesse aux 2 variables qui font reculer le robot soit AIN1 et BIN1.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## Fonction left
+Cette fonction permet de faire tourner le robot vers la gauche. Elle prend en paramètre une vitesse comprise entre 0 et 100% qui sera directement convertie en vitesse pour le robot grâce à la fonction set_speed puis elle est stockée dans une variable. Le robot à 2 moteurs pour le faire tourner à gauche. Pour que le robot tourne à gauche il faut que la roue droite avance et que la roue gauche recule.
+        AIN1 permet de faire reculer la roue droite vers l'arrière
+        AIN2 permet de faire avancer la roue droite vers l'avant
+        BIN1 permet de faire reculer la roue gauche vers l'arrière
+        BIN2 permet de faire avancer la roue gauche vers l'avant
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+On donne donc une vitesse aux 2 variables qui font tourner le robot à gauche soit AIN2 et BIN1.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
 
-## License
-For open source projects, say how it is licensed.
+## Fonction right
+Cette fonction permet de faire tourner le robot vers la droite. Elle prend en paramètre une vitesse comprise entre 0 et 100% qui sera directement convertie en vitesse pour le robot grâce à la fonction set_speed puis elle est stockée dans une variable. Le robot à 2 moteurs pour le faire tourner à droite. Pour que le robot tourne à droite il faut que la roue droite recule et que la roue gauche avance.        AIN1 permet de faire reculer la roue droite vers l'arrière        AIN2 permet de faire avancer la roue droite vers l'avant        BIN1 permet de faire reculer la roue gauche vers l'arrière        BIN2 permet de faire avancer la roue gauche vers l'avantOn donne donc une vitesse aux 2 variables qui font tourner le robot à droite soit AIN1 et BIN2.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+
+
+## Fonction stop
+Cette fonction permet d'arrêter le robot elle met tous les moteurs à la vitesse 0.
+
+
+## Fonction left_wheel_back
+Cette fonction permet de faire tourner la roue gauche du robot vers l'arrière. Elle prend en paramètre une vitesse comprise entre 0 et 100% qui sera directement convertie en vitesse pour le robot grâce à la fonction set_speed puis elle est stockée dans une variable. Le robot à 2 moteurs pour le faire tourner, pour faire tourner la roue gauche vers l'arrière il faut : 
+        AIN1 permet de faire reculer la roue droite vers l'arrière
+        AIN2 permet de faire avancer la roue droite vers l'avant
+        BIN1 permet de faire reculer la roue gauche vers l'arrière
+        BIN2 permet de faire avancer la roue gauche vers l'avant
+
+On donne donc une vitesse à la variable qui fait tourner la roue gauche du robot vers l'arrière soit BIN1.
+
+
+
+## Fonction left_wheel_advance
+Cette fonction permet de faire tourner la roue gauche du robot vers l'avant. Elle prend en paramètre une vitesse comprise entre 0 et 100% qui sera directement convertie en vitesse pour le robot grâce à la fonction set_speed puis elle est stockée dans une variable. Le robot à 2 moteurs pour le faire tourner, pour faire tourner la roue gauche vers l'avant il faut: 
+        AIN1 permet de faire reculer la roue droite vers l'arrière
+        AIN2 permet de faire avancer la roue droite vers l'avant
+        BIN1 permet de faire reculer la roue gauche vers l'arrière
+        BIN2 permet de faire avancer la roue gauche vers l'avant
+
+On donne donc une vitesse à la variable qui fait tourner la roue gauche du robot vers l'avant soit BIN2.
+
+
+
+## Fonction right_wheel_back
+Cette fonction permet de faire tourner la roue droite du robot vers l'arrière. Elle prend en paramètre une vitesse comprise entre 0 et 100% qui sera directement convertie en vitesse pour le robot grâce à la fonction set_speed puis elle est stockée dans une variable. Le robot à 2 moteurs pour le faire tourner, pour faire tourner la roue droite vers l'arrière il faut: 
+        AIN1 permet de faire reculer la roue droite vers l'arrière
+        AIN2 permet de faire avancer la roue droite vers l'avant
+        BIN1 permet de faire reculer la roue gauche vers l'arrière
+        BIN2 permet de faire avancer la roue gauche vers l'avant
+
+On donne donc une vitesse à la variable qui fait tourner la roue droite du robot vers l'arrière soit AIN1.
+
+
+## Fonction right_wheel_advance
+Cette fonction permet de faire tourner la roue droite du robot vers l'avant. Elle prend en paramètre une vitesse comprise entre 0 et 100% qui sera directement convertie en vitesse pour le robot grâce à la fonction set_speed puis elle est stockée dans une variable. Le robot à 2 moteurs pour le faire tourner, pour faire tourner la roue droite vers l'avant il faut: 
+        AIN1 permet de faire reculer la roue droite vers l'arrière
+        AIN2 permet de faire avancer la roue droite vers l'avant
+        BIN1 permet de faire reculer la roue gauche vers l'arrière
+        BIN2 permet de faire avancer la roue gauche vers l'avant
+
+On donne donc une vitesse à la variable qui fait tourner la roue droite du robot vers l'avant soit AIN2.
+
+
+##Fonction oneCase
+Cette fonction permet de faire avancer le robot d'une case sachant qu'une case fait 15 cm. Elle prend en paramètre une vitesse comprise entre 0 et 100% qui sera directement convertie en vitesse pour le robot grâce à la fonction set_speed puis elle est stockée dans une varible. Le robot à 2 moteurs pour le faire avancer.
+        AIN1 permet de faire reculer la roue droite vers l'arrière
+        AIN2 permet de faire avancer la roue droite vers l'avant
+        BIN1 permet de faire reculer la roue gauche vers l'arrière
+        BIN2 permet de faire avancer la roue gauche vers l'avant
+    
+On donne donc une vitesse aux variables qui font avancer le robot soit AIN2 et BIN2 puis on attend un certain temps le temps que le robot avance de 15cm puis on l'arrête. 
+
+
+## Fonction buzzerInit
+Cette fonction permet de configurer le buzzer pour pouvoir l'utiliser pour jouer des sons 
+
+
+
+## Fonction playFrequency
+La fonction playFrequency est utilisée pour jouer une fréquence sonore pendant une durée spécifiée.
+
+Elle initialise le buzzer en appelant une fonction buzzerInit() 
+Elle arrondit la valeur de frequency à l'entier le plus proche et la configure comme la fréquence du buzzer.
+Elle définit le cycle de service (duty_cycle) du buzzer à 2>>15e qui correspond à un rapport cyclique de 50% pour obtenir une onde carrée.
+Elle attend pendant la durée spécifiée en utilisant la fonction time.sleep(waitTime).
+Elle désactive le buzzer en appelant la méthode deinit().
+La fonction playFrequency est utilisée pour jouer une note spécifique sur un buzzer pendant un certain laps de temps donné par waitTime. La fréquence de la note est définie par le paramètre frequency.
+
+
+
+## Fonction get_line
+La fonction get_line permet de détecter s’il y a une ligne à l'avant du robot grâce à des capteurs de couleur qui sont référencés dans un tableau lineInput. En passant un nombre compris dans la taille du tableau 0 à 4 en paramètre la fonction renvoie la valeur récupérer par le capteur correspondant au chiffre. 
+
+Les capteurs couleurs sont assignés à des broches et ces broches sont elles-mêmes assignées à un nombre allant de 0 à 4. Si Line_pos = 0 on regarde s’il y a une ligne tout à gauche du robot. Le capteur envoie et réceptionne un rayon infrarouge et selon la valeur qui est retournée on peut savoir s’il y a une ligne ou pas.
+
+C'est exactement la même chose pour les 4 autres capteurs 
+    Si le line_pos = 1 on regarde s’il y a une ligne au milieu gauche.
+    Si le line_pos = 2 on regarde s’il y a une ligne au milieu.
+    Si le line_pos = 3 on regarde s’il y a une ligne au milieu droit.
+    Si le line_pos = 4 on regarde s’il y a une ligne tout à droite.
+    
+La fonction permet de faire abstraction de la luminosité ambiante ce qui permet de ne pas fausser les valeurs.
+
+
+## Fonction followLine
+
+La fonction followLine est utilisée pour suivre une ligne en utilisant des capteurs de ligne.
+
+Elle obtient les valeurs des capteurs de ligne à travers les appels à la fonction get_line pour les capteurs 0, 2 et 4, et les assigne respectivement aux variables sensor1_value, sensor2_value et sensor3_value.
+
+Elle met en oeuvre la logique de suivi de ligne en utilisant des conditions if-elif-else.
+Si le capteur du milieu (get_line(2)) détecte une ligne (valeur inférieure à threshold + 1500), cela indique que le robot est centré sur la ligne. Dans ce cas, les moteurs sont configurés pour avancer en définissant les valeurs des broches AIN1 et BIN1 à 0 et les valeurs des broches AIN2 et BIN2 à 65535.
+Si le capteur de gauche (get_line(0)) détecte une ligne (valeur inférieure à threshold - 9500), cela indique que le robot a dévié vers la gauche. Dans ce cas, les moteurs sont configurés pour tourner vers la gauche en définissant les valeurs des broches AIN1 et BIN2 à 0 et les valeurs des broches AIN2 et BIN1 à 8000.
+Si le capteur de droite (get_line(4)) détecte une ligne (valeur inférieure à threshold - 9500), cela indique que le robot a dévié vers la droite. Dans ce cas, les moteurs sont configurés pour tourner vers la droite en définissant les valeurs des broches AIN1 et BIN2 à 8000 et les valeurs des broches AIN2 et BIN1 à 0.
+Si aucun capteur ne détecte une ligne, cela indique que le robot est hors de la ligne. Dans ce cas, les moteurs sont configurés pour reculer à une vitesse plus lente en définissant les valeurs des broches AIN1 et BIN2 à 8000 et les valeurs des broches AIN2 et BIN1 à 0.
+Elle attend pendant une courte durée de 0.1 seconde en utilisant la fonction time.sleep(0.1).
+Fonction followLine est utilisée dans un contexte où un robot est équipé de capteurs de ligne pour suivre une ligne tracée au sol. Selon les valeurs des capteurs, le robot ajuste les vitesses des moteurs pour rester sur la ligne ou effectuer des corrections de trajectoire si nécessaire.
+
+
+
+## Fonction play_note
+La fonction play_note est utilisée pour jouer une note spécifiée pendant une durée donnée.
+
+Elle vérifie si la note spécifiée (note) se trouve dans le dictionnaire NOTES_FREQUENCIES. Ce dictionnaire associe des notes à leurs fréquences correspondantes.
+Si la note est présente dans le dictionnaire, la fonction récupère la fréquence associée à cette note.
+Si la fréquence n'est pas égale à 0.1, cette  valeur est une valeur spéciale pour indiquer une pause, la fonction appelle la fonction playFrequency pour jouer la note à la fréquence spécifiée (frequency) et pendant la durée spécifiée (duration).
+Sinon, si la fréquence est égale à 0.1, la fonction utilise la fonction time.sleep pour faire une pause pendant la durée spécifiée (duration).
+La fonction play_note est utilisée pour jouer des notes musicales en utilisant des fréquences prédéfinies. La durée de lecture de chaque note est spécifiée, et si la fréquence de la note est différente de 0.1 (pour une pause), la fonction appelle une autre fonction playFrequency pour jouer la note à la fréquence correspondante. Sinon, la fonction fait une pause en utilisant time.sleep.
