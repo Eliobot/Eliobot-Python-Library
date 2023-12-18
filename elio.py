@@ -13,8 +13,7 @@ from digitalio import DigitalInOut, Direction, Pull
 from analogio import AnalogIn
 import pwmio
 import busio
-
-
+import adafruit_dht
 
 #--------------- PINS DECLARATION ---------------#
 
@@ -34,7 +33,7 @@ uart = busio.UART(board.IO43, board.IO44)
 i2c = busio.I2C(board.IO8, board.IO9)
 
 # Header pins declaration
-header_3_pin = DigitalInOut(board.IO2)
+header_3_pin = board.IO2
 
 # Setup the BATTERY voltage sense pin
 vbat_voltage = AnalogIn(board.BATTERY)
@@ -57,6 +56,9 @@ AIN1 = pwmio.PWMOut(board.IO36)
 AIN2 = pwmio.PWMOut(board.IO38)
 BIN1 = pwmio.PWMOut(board.IO35)
 BIN2 = pwmio.PWMOut(board.IO37)
+
+# DHT11 sensor declaration
+sensor = addafruit_dht.DHT11(board.IO15)
 
 
 
@@ -326,7 +328,21 @@ def followLine():
         BIN2.duty_cycle = 0
         
     time.sleep(0.1)
-    
+
+
+#--------------- BACKPACK ---------------#
+
+#--------------- DHT11 ---------------#
+
+# Get the temperature from the DHT11 sensor
+def getTemperature():
+    return sensor.temperature
+
+# Get the humidity from the DHT11 sensor
+def getHumidity():
+    return sensor.humidity
+
+
 
 
 
