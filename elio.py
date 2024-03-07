@@ -5,7 +5,7 @@
 #   https://eliobot.com
 #
 
-#--------------- LIBRARIES IMPORT ---------------#
+# --------------- LIBRARIES IMPORT ---------------#
 
 import time
 import board
@@ -13,10 +13,9 @@ from digitalio import DigitalInOut, Direction, Pull
 from analogio import AnalogIn
 import pwmio
 import busio
+import wifi
 
-
-
-#--------------- PINS DECLARATION ---------------#
+# --------------- PINS DECLARATION ---------------#
 
 # IR_Cmd pin declaration
 ir_cmd_pin = DigitalInOut(board.IO34)
@@ -49,7 +48,8 @@ obstacleCmd.direction = Direction.OUTPUT
 obstacleInput = [AnalogIn(board.IO4), AnalogIn(board.IO5), AnalogIn(board.IO6), AnalogIn(board.IO7)]
 
 # Line input Pins declaration
-lineInput = [AnalogIn(board.IO10), AnalogIn(board.IO11), AnalogIn(board.IO12), AnalogIn(board.IO13), AnalogIn(board.IO14)]
+lineInput = [AnalogIn(board.IO10), AnalogIn(board.IO11), AnalogIn(board.IO12), AnalogIn(board.IO13),
+             AnalogIn(board.IO14)]
 threshold = 45000
 
 # Motor Driver Pins declaration
@@ -59,9 +59,7 @@ BIN1 = pwmio.PWMOut(board.IO35)
 BIN2 = pwmio.PWMOut(board.IO37)
 
 
-
-
-#--------------- INTERNAL VOLTAGES ---------------#
+# --------------- INTERNAL VOLTAGES ---------------#
 
 # Measure the battery voltage
 def get_battery_voltage():
@@ -82,8 +80,7 @@ def get_vbus_present():
     return vbus_sense.value
 
 
-
-#--------------- COLORS ---------------#
+# --------------- COLORS ---------------#
 
 # Let the rainbow shine
 def rgb_color_wheel(wheel_pos):
@@ -100,25 +97,23 @@ def rgb_color_wheel(wheel_pos):
         return wheel_pos * 3, 255 - wheel_pos * 3, 0
 
 
-
-#--------------- OBSTACLE SENSORS ---------------#
+# --------------- OBSTACLE SENSORS ---------------#
 
 # Get the obstacles sensors value from Left (position 0) to Right (position 3) and back (postion 4)
 def getObstacle(obstacle_pos):
     obstacle_pos = obstacle_pos
-    
+
     value = 0
 
     value = obstacleInput[obstacle_pos].value
 
     if value < 10000:
         return True
-    else :
+    else:
         return False
 
 
-
-#--------------- MOTORS ---------------#
+# --------------- MOTORS ---------------#
 
 # Convert the speed from 0 - 100% to 0 - 65535 for pwmio usage
 def setSpeed(speedValue):
@@ -127,14 +122,14 @@ def setSpeed(speedValue):
         speedValue = 100
     elif speedValue < 15:
         speedValue += 15
-        
+
     pwmValue = int((speedValue / 100) * 65535)
 
     return pwmValue
 
 
 # Move the robot Forward (0 - 100% speed)
-def moveForward(speed = 100):
+def moveForward(speed=100):
     pwm_value = setSpeed(speed)
 
     # Faire avancer le robot à la vitesse spécifiée
@@ -142,10 +137,10 @@ def moveForward(speed = 100):
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
-    
-    
+
+
 # Move the robot Backward (0 - 100% speed)
-def moveBackward(speed = 100):
+def moveBackward(speed=100):
     pwm_value = setSpeed(speed)
 
     # Faire avancer le robot à la vitesse spécifiée
@@ -153,10 +148,10 @@ def moveBackward(speed = 100):
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
-    
-    
+
+
 # Turn the robot to the Left (0 - 100% speed)
-def turnLeft(speed = 100):
+def turnLeft(speed=100):
     pwm_value = setSpeed(speed)
 
     # Faire avancer le robot à la vitesse spécifiée
@@ -164,10 +159,10 @@ def turnLeft(speed = 100):
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
-    
-    
+
+
 # turn to the right
-def turnRight(speed = 100):
+def turnRight(speed=100):
     pwm_value = setSpeed(speed)
 
     # Faire avancer le robot à la vitesse spécifiée
@@ -175,16 +170,16 @@ def turnRight(speed = 100):
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
-    
+
 
 # Stop the robot
 def motorStop():
-    AIN1.duty_cycle = 2**16-1
-    AIN2.duty_cycle = 2**16-1
-    BIN1.duty_cycle = 2**16-1
-    BIN2.duty_cycle = 2**16-1
-    
-    
+    AIN1.duty_cycle = 2 ** 16 - 1
+    AIN2.duty_cycle = 2 ** 16 - 1
+    BIN1.duty_cycle = 2 ** 16 - 1
+    BIN2.duty_cycle = 2 ** 16 - 1
+
+
 # Slow the robot and stop
 def motorSlow():
     AIN1.duty_cycle = 0
@@ -194,36 +189,39 @@ def motorSlow():
 
 
 # Spin the left wheel forward (0 - 100% speed)
-def spinLeftWheelForward(speed = 100):
+def spinLeftWheelForward(speed=100):
     pwm_value = setSpeed(speed)
- 
+
     BIN1.duty_cycle = 0
     BIN2.duty_cycle = pwm_value
 
+
 # Spin the left wheel backward (0 - 100% speed)
-def spinLeftWheelBackward(speed = 100):
+def spinLeftWheelBackward(speed=100):
     pwm_value = setSpeed(speed)
-    
+
     BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
-    
+
+
 # Spin the right wheel forward (0 - 100% speed)
-def spinRightWheelForward(speed = 100):
+def spinRightWheelForward(speed=100):
     pwm_value = setSpeed(speed)
-    
+
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
 
+
 # Spin the right wheel backward (0 - 100% speed)
-def spinRightWheelBackward(speed = 100):
+def spinRightWheelBackward(speed=100):
     pwm_value = setSpeed(speed)
-    
+
     AIN1.duty_cycle = pwm_value
     AIN2.duty_cycle = 0
 
-    
+
 # Move the robot forward one step (= approx. 15cm)
-def moveOneStep(speed = 100):
+def moveOneStep(speed=100):
     pwm_value = setSpeed(speed)
     AIN1.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
@@ -233,37 +231,35 @@ def moveOneStep(speed = 100):
     motorStop()
 
 
-
-#--------------- BUZZER ---------------#
+# --------------- BUZZER ---------------#
 
 # Buzzer initialisation
 def buzzerInit():
     buzzerPin = pwmio.PWMOut(board.IO17, variable_frequency=True)
     return buzzerPin
-    
-    
+
+
 # Play a frequency (in Hertz) for a given time (in seconds)
-def playFrequency(frequency , waitTime, volume):
+def playFrequency(frequency, waitTime, volume):
     buzzer = buzzerInit()
     buzzer.frequency = round(frequency)
-    buzzer.duty_cycle = int(2 ** (0.06*volume + 9))  # 32768 value is 50% duty cycle, to get a square wave.
+    buzzer.duty_cycle = int(2 ** (0.06 * volume + 9))  # 32768 value is 50% duty cycle, to get a square wave.
     time.sleep(waitTime)
     buzzer.deinit()
 
 
 # Play a note (C, D, E, F, G, A or B) for a given time (in seconds)
 def playNote(note, duration, NOTES_FREQUENCIES, volume):
-  if note in NOTES_FREQUENCIES:
-       frequency = NOTES_FREQUENCIES[note]
-       if frequency != 0.1:
-           playFrequency(frequency , duration, volume)
-       else:
-           time.sleep(duration)
+    if note in NOTES_FREQUENCIES:
+        frequency = NOTES_FREQUENCIES[note]
+        if frequency != 0.1:
+            playFrequency(frequency, duration, volume)
+        else:
+            time.sleep(duration)
 
 
+# --------------- LINE FOLLOWING ---------------#
 
-#--------------- LINE FOLLOWING ---------------#
-           
 # Get the line sensors value from Left (position 0) to Right (position 4)
 def getLine(line_pos):
     ambient = 0
@@ -309,7 +305,7 @@ def followLine():
         AIN2.duty_cycle = 8000
         BIN1.duty_cycle = 8000
         BIN2.duty_cycle = 0
-      
+
 
     elif sensor3_value < threshold - 9500:
         # Line detected by right sensor, turn right
@@ -317,19 +313,56 @@ def followLine():
         AIN2.duty_cycle = 0
         BIN1.duty_cycle = 0
         BIN2.duty_cycle = 8000
-       
+
     else:
         # No line detected, reverse at a slower speed
         AIN1.duty_cycle = 8000
         AIN2.duty_cycle = 0
         BIN1.duty_cycle = 8000
         BIN2.duty_cycle = 0
-        
+
     time.sleep(0.1)
-    
 
 
+# --------------- WIFI ---------------#
+
+# Connect to a wifi network
+def connectToWifi(ssid, password):
+    wifi.radio.enabled = True
+    wifi.radio.connect(ssid, password)
+    while not wifi.radio.connected:
+        time.sleep(0.1)
+    print("Connected to", ssid)
+    print("My IP address is", wifi.radio.ipv4_address)
+    return wifi.radio.ipv4_address
 
 
+# Disconnect from the wifi network
+def disconnectFromWifi():
+    wifi.radio.enabled = False
+    while wifi.radio.connected:
+        time.sleep(0.1)
+    print("Disconnected from wifi")
 
+
+# Set Eliobot as an access point
+def setAccessPoint(ssid, password):
+    wifi.radio.enabled = True
+    wifi.radio.start_ap(ssid, password)
+
+
+def scanWifiNetworks():
+    wifi.radio.enabled = True
+    networks = wifi.radio.start_scanning_networks()
+    print("Réseaux WiFi disponibles:")
+    for network in networks:
+        # RSSI to percentage
+        MAX_RSSI = -30  # 100% RSSI
+        MIN_RSSI = -90  # 0% RSSI
+        rssi = max(min(network.rssi, MAX_RSSI), MIN_RSSI)
+        percentage = (rssi - MIN_RSSI) / (MAX_RSSI - MIN_RSSI) * 100
+
+        print("SSID:", network.ssid, ", Canal:", network.channel, ", RSSI:", network.rssi, " (", round(percentage), "%)")
+    wifi.radio.stop_scanning_networks()
+    return networks
 
