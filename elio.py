@@ -4,9 +4,8 @@
 # Project home:
 #   https://eliobot.com
 #
-
 # --------------- LIBRARIES IMPORT ---------------#
-
+import asyncio
 import time
 import board
 from digitalio import DigitalInOut, Direction, Pull
@@ -14,6 +13,16 @@ from analogio import AnalogIn
 import pwmio
 import busio
 import wifi
+import json
+
+try:
+    with open('config.json', 'r') as file:
+        calibration_data = json.load(file)
+except OSError:
+    calibration_data = {
+        'average_max_value': 40000,
+        'average_min_value': 10000
+    }
 
 # --------------- PINS DECLARATION ---------------#
 
@@ -50,7 +59,10 @@ obstacleInput = [AnalogIn(board.IO4), AnalogIn(board.IO5), AnalogIn(board.IO6), 
 # Line input Pins declaration
 lineInput = [AnalogIn(board.IO10), AnalogIn(board.IO11), AnalogIn(board.IO12), AnalogIn(board.IO13),
              AnalogIn(board.IO14)]
-threshold = 45000
+
+# Line threshhold
+threshold = calibration_data['average_min_value'] + (
+        calibration_data['average_max_value'] - calibration_data['average_min_value']) / 2
 
 # Motor Driver Pins declaration
 AIN1 = pwmio.PWMOut(board.IO36)
@@ -235,27 +247,25 @@ def moveOneStep(speed=100):
 
 # Buzzer initialisation
 def buzzerInit():
-    buzzerPin = pwmio.PWMOut(board.IO17, variable_frequency=True)
+    buzzerPin = PWMOut(board.IO17, variable_frequency=True)
     return buzzerPin
 
-
-# Play a frequency (in Hertz) for a given time (in seconds)
-def playFrequency(frequency, waitTime, volume):
+# Asynchronous play a frequency (in Hertz) for a given time (in seconds)
+async def playFrequencyAsync(frequency, waitTime, volume):
     buzzer = buzzerInit()
     buzzer.frequency = round(frequency)
-    buzzer.duty_cycle = int(2 ** (0.06 * volume + 9))  # 32768 value is 50% duty cycle, to get a square wave.
-    time.sleep(waitTime)
+    buzzer.duty_cycle = int(2 ** (0.06 * volume + 9))  # Example calculation for 50% duty cycle
+    await asyncio.sleep(waitTime)
     buzzer.deinit()
 
-
-# Play a note (C, D, E, F, G, A or B) for a given time (in seconds)
-def playNote(note, duration, NOTES_FREQUENCIES, volume):
+# Play a note asynchronously
+async def playNoteAsync(note, duration, NOTES_FREQUENCIES, volume):
     if note in NOTES_FREQUENCIES:
         frequency = NOTES_FREQUENCIES[note]
-        if frequency != 0.1:
-            playFrequency(frequency, duration, volume)
+        if frequency != 0.1:  # Ensure it's a valid frequency
+            await playFrequencyAsync(frequency, duration, volume)
         else:
-            time.sleep(duration)
+            await asyncio.sleep(duration)
 
 
 # --------------- LINE FOLLOWING ---------------#
@@ -283,58 +293,106 @@ def getLine(line_pos):
 
 
 # Example function to follow a black line on white paper
-def followLine():
-    sensor1_value = getLine(0)
-    sensor2_value = getLine(2)
-    sensor3_value = getLine(4)
+def followLine(speed=100):
+    if getLine(2) < threshold:
+        moveForward(speed)
 
-    # Print sensor values
-    print(sensor1_value, sensor2_value, sensor3_value)
+    elif getLine(0) < threshold:
+        motorStop()
+        spinRightWheelForward(speed)
 
-    # Line following logic
-    if sensor2_value < threshold + 1500:
-        # Line detected by middle sensor, move forward
-        AIN1.duty_cycle = 0
-        AIN2.duty_cycle = 65535
-        BIN1.duty_cycle = 0
-        BIN2.duty_cycle = 65535
+        time.sleep(0.1)
 
-    elif sensor1_value < threshold - 9500:
-        # Line detected by left sensor, turn left
-        AIN1.duty_cycle = 0
-        AIN2.duty_cycle = 8000
-        BIN1.duty_cycle = 8000
-        BIN2.duty_cycle = 0
+    elif getLine(1) < threshold:
+        motorStop()
+        spinRightWheelForward(speed)
 
+    elif getLine(3) < threshold:
+        motorStop()
+        spinLeftWheelForward(speed)
 
-    elif sensor3_value < threshold - 9500:
-        # Line detected by right sensor, turn right
-        AIN1.duty_cycle = 8000
-        AIN2.duty_cycle = 0
-        BIN1.duty_cycle = 0
-        BIN2.duty_cycle = 8000
+    elif getLine(4) < threshold:
+        motorStop()
+        spinLeftWheelForward(speed)
+        time.sleep(0.1)
 
     else:
-        # No line detected, reverse at a slower speed
-        AIN1.duty_cycle = 8000
-        AIN2.duty_cycle = 0
-        BIN1.duty_cycle = 8000
-        BIN2.duty_cycle = 0
+        motorStop()
 
-    time.sleep(0.1)
+
+# Calibrate the line sensors
+def calibrateLineSensors():
+    time.sleep(1)
+
+    wait_time = 0.5
+    num_samples = 5
+    max_values = [0] * num_samples
+    min_values = [float('inf')] * num_samples
+
+    moveForward(100)
+    time.sleep(wait_time)
+    motorStop()
+    time.sleep(1)
+    updateSensorValues(max_values, min_values)
+
+    moveBackward(100)
+    time.sleep(wait_time)
+    motorStop()
+    time.sleep(1)
+    updateSensorValues(max_values, min_values)
+
+    moveBackward(100)
+    time.sleep(wait_time)
+    motorStop()
+    time.sleep(1)
+    updateSensorValues(max_values, min_values)
+
+    moveForward(100)
+    time.sleep(wait_time)
+    motorStop()
+    time.sleep(1)
+    updateSensorValues(max_values, min_values)
+
+    avg_max_value = sum(max_values) / len(max_values)
+    avg_min_value = sum(min_values) / len(min_values)
+
+    saveCalibrationData(avg_max_value, avg_min_value)
+
+    print("Calibration completed:")
+    print("Average Max value:", avg_max_value)
+    print("Average Min value:", avg_min_value)
+
+
+def updateSensorValues(max_values, min_values):
+    for i in range(5):
+        current_value = getLine(i)
+        max_values[i] = max(max_values[i], current_value)
+        min_values[i] = min(min_values[i], current_value)
+
+
+def saveCalibrationData(avg_max_value, avg_min_value):
+    # Create a dictionary to hold the data
+    calibration_data = {
+        'average_max_value': avg_max_value,
+        'average_min_value': avg_min_value
+    }
+
+    # Write the dictionary to a file in JSON format
+    with open('config.json', 'w') as file:
+        json.dump(calibration_data, file)
 
 
 # --------------- WIFI ---------------#
 
 # Connect to a wifi network
-def connectToWifi(ssid, password):
-    wifi.radio.enabled = True
-    wifi.radio.connect(ssid, password)
-    while not wifi.radio.connected:
-        time.sleep(0.1)
-    print("Connected to", ssid)
-    print("My IP address is", wifi.radio.ipv4_address)
-    return wifi.radio.ipv4_address
+def connectToWifi(ssid, password, webpassword):
+    with open('settings.toml', 'w') as f:
+        f.write('CIRCUITPY_WIFI_SSID = "' + ssid + '"\n')
+        f.write('CIRCUITPY_WIFI_PASSWORD = "' + password + '"\n')
+        f.write('CIRCUITPY_WEB_API_PASSWORD = "' + webpassword + '"\n')
+
+    print("Settings saved")
+    print("Restart the board to connect to the wifi network")
 
 
 # Disconnect from the wifi network
@@ -351,6 +409,7 @@ def setAccessPoint(ssid, password):
     wifi.radio.start_ap(ssid, password)
 
 
+# Scan for wifi networks
 def scanWifiNetworks():
     wifi.radio.enabled = True
     networks = wifi.radio.start_scanning_networks()
@@ -362,7 +421,7 @@ def scanWifiNetworks():
         rssi = max(min(network.rssi, MAX_RSSI), MIN_RSSI)
         percentage = (rssi - MIN_RSSI) / (MAX_RSSI - MIN_RSSI) * 100
 
-        print("SSID:", network.ssid, ", Canal:", network.channel, ", RSSI:", network.rssi, " (", round(percentage), "%)")
+        print("SSID:", network.ssid, ", Canal:", network.channel, ", RSSI:", network.rssi, " (", round(percentage),
+              "%)")
     wifi.radio.stop_scanning_networks()
     return networks
-
