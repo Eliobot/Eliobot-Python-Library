@@ -1,18 +1,17 @@
 # Eliobot robot Library
-# version = '1.1'
+# version = '1.2'
 # 2023 ELIO, B3 ROBOTICS
 #
 # Project home:
 #   https://eliobot.com
 #
 # --------------- LIBRARIES IMPORT ---------------#
-import asyncio
+
 import time
 import board
 from digitalio import DigitalInOut, Direction, Pull
 from analogio import AnalogIn
 import pwmio
-import busio
 import wifi
 import json
 
@@ -27,24 +26,6 @@ except OSError:
 
 # --------------- PINS DECLARATION ---------------#
 
-# IR_Cmd pin declaration
-ir_cmd_pin = DigitalInOut(board.IO34)
-
-# boot pin declaration
-boot = DigitalInOut(board.IO0)
-
-# Line led declaration
-lineLed = DigitalInOut(board.IO18)
-
-# UART pins declaration
-uart = busio.UART(board.IO43, board.IO44)
-
-# I2C pins declaration
-i2c = busio.I2C(board.IO8, board.IO9)
-
-# Header pins declaration
-header_3_pin = DigitalInOut(board.IO2)
-
 # Setup the BATTERY voltage sense pin
 vbat_voltage = AnalogIn(board.BATTERY)
 
@@ -53,11 +34,12 @@ vbus_sense = DigitalInOut(board.VBUS_SENSE)
 vbus_sense.direction = Direction.INPUT
 
 # Obstacle input Pins declaration
-obstacleCmd = DigitalInOut(board.IO33)
-obstacleCmd.direction = Direction.OUTPUT
 obstacleInput = [AnalogIn(board.IO4), AnalogIn(board.IO5), AnalogIn(board.IO6), AnalogIn(board.IO7)]
 
-# Line input Pins declaration
+# Line command pin
+lineCmd = DigitalInOut(board.IO33)
+lineCmd.direction = Direction.OUTPUT
+
 lineInput = [AnalogIn(board.IO10), AnalogIn(board.IO11), AnalogIn(board.IO12), AnalogIn(board.IO13),
              AnalogIn(board.IO14)]
 
@@ -248,25 +230,29 @@ def moveOneStep(speed=100):
 
 # Buzzer initialisation
 def buzzerInit():
-    buzzerPin = PWMOut(board.IO17, variable_frequency=True)
+    buzzerPin = pwmio.PWMOut(board.IO17, variable_frequency=True)
     return buzzerPin
 
+
 # Asynchronous play a frequency (in Hertz) for a given time (in seconds)
-async def playFrequencyAsync(frequency, waitTime, volume):
+def playFrequency(frequency, waitTime, volume):
+    """Joue une fréquence (en Hertz) pendant une durée donnée (en secondes) avec un volume spécifié."""
     buzzer = buzzerInit()
     buzzer.frequency = round(frequency)
-    buzzer.duty_cycle = int(2 ** (0.06 * volume + 9))  # Example calculation for 50% duty cycle
-    await asyncio.sleep(waitTime)
+    buzzer.duty_cycle = int(2 ** (0.06 * volume + 9))  # La valeur 32768 correspond à un cycle de service de 50 % pour obtenir une onde carrée.
+    time.sleep(waitTime)
     buzzer.deinit()
 
+
 # Play a note asynchronously
-async def playNoteAsync(note, duration, NOTES_FREQUENCIES, volume):
+def playNote(note, duration, NOTES_FREQUENCIES, volume):
+    """Joue une note (C, D, E, F, G, A ou B) pendant une durée donnée (en secondes)."""
     if note in NOTES_FREQUENCIES:
         frequency = NOTES_FREQUENCIES[note]
-        if frequency != 0.1:  # Ensure it's a valid frequency
-            await playFrequencyAsync(frequency, duration, volume)
+        if frequency != 0.1:
+            playFrequency(frequency, duration, volume)
         else:
-            await asyncio.sleep(duration)
+            time.sleep(duration)
 
 
 # --------------- LINE FOLLOWING ---------------#
@@ -278,12 +264,12 @@ def getLine(line_pos):
     value = 0
 
     # Measure reflected IR
-    obstacleCmd.value = True
+    lineCmd.value = True
     time.sleep(0.02)
     lit = lineInput[line_pos].value
 
     # Measure ambient light
-    obstacleCmd.value = False
+    lineCmd.value = False
     time.sleep(0.02)
     ambient = lineInput[line_pos].value
 
