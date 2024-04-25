@@ -23,24 +23,6 @@ import busio
 Avant d'utiliser les différents composants du robot, vous devez déclarer les broches utilisées pour chaque composant. Voici les déclarations des broches pour les différents composants :
 
 ```python
-# Déclaration de la broche IR_Cmd
-ir_cmd_pin = DigitalInOut(board.IO34)
-
-# Déclaration de la broche de démarrage (boot)
-boot = DigitalInOut(board.IO0)
-
-# Déclaration de la broche Line led
-lineLed = DigitalInOut(board.IO18)
-
-# Déclaration des broches UART
-uart = busio.UART(board.IO43, board.IO44)
-
-# Déclaration des broches I2C
-i2c = busio.I2C(board.IO8, board.IO9)
-
-# Déclaration de la broche Header 3
-header_3_pin = DigitalInOut(board.IO2)
-
 # Déclaration de la broche de mesure de tension de la batterie (vbat_voltage)
 vbat_voltage = AnalogIn(board.BATTERY)
 
