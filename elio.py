@@ -1,6 +1,6 @@
 # Eliobot robot Library
 # version = '1.2'
-# 2023 ELIO, B3 ROBOTICS
+# 2023 ELIO SAS
 #
 # Project home:
 #   https://eliobot.com
