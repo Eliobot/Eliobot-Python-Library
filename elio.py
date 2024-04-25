@@ -15,27 +15,7 @@ from analogio import AnalogIn
 import pwmio
 import busio
 
-
-
 #--------------- PINS DECLARATION ---------------#
-
-# IR_Cmd pin declaration
-ir_cmd_pin = DigitalInOut(board.IO34)
-
-# boot pin declaration
-boot = DigitalInOut(board.IO0)
-
-# Line led declaration
-lineLed = DigitalInOut(board.IO18)
-
-# UART pins declaration
-uart = busio.UART(board.IO43, board.IO44)
-
-# I2C pins declaration
-i2c = busio.I2C(board.IO8, board.IO9)
-
-# Header pins declaration
-header_3_pin = DigitalInOut(board.IO2)
 
 # Setup the BATTERY voltage sense pin
 vbat_voltage = AnalogIn(board.BATTERY)
@@ -58,9 +38,6 @@ AIN1 = pwmio.PWMOut(board.IO36)
 AIN2 = pwmio.PWMOut(board.IO38)
 BIN1 = pwmio.PWMOut(board.IO35)
 BIN2 = pwmio.PWMOut(board.IO37)
-
-
-
 
 #--------------- INTERNAL VOLTAGES ---------------#
 
