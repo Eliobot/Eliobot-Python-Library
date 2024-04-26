@@ -1,5 +1,6 @@
-# Eliobot robot Library v1.1
-# 2023 ELIO, B3 ROBOTICS
+# Eliobot robot Library
+# version '1.2'
+# 2023 ELIO SAS
 #
 # Project home:
 #   https://eliobot.com
@@ -7,11 +8,12 @@
 
 #--------------- LIBRARIES IMPORT ---------------#
 
-import time
+import time  
+import math
 import board
 from digitalio import DigitalInOut, Direction, Pull
 from analogio import AnalogIn
-import pwmio
+import pwmio 
 import wifi
 import json
 
@@ -23,6 +25,17 @@ except OSError:
         'average_max_value': 40000,
         'average_min_value': 10000
     }
+
+# ----------------- CONSTANTS -----------------#
+
+# Distance between the two wheels in mm
+space_between_wheels = 77.5 
+
+# Diameter of the wheels in mm
+wheel_diameter = 33.5
+
+# Distance traveled by the robot in cm for one revolution of the wheel
+distance_per_revolution = (wheel_diameter * math.pi) / 10
 
 # --------------- PINS DECLARATION ---------------#
 
@@ -65,7 +78,9 @@ def get_battery_voltage():
     # This forumla should show the nominal 4.2V max capacity (approximately) when 5V is present and the
     # VBAT is in charge state for a 1S LiPo battery with a max capacity of 4.2V
     global vbat_voltage
-    return (vbat_voltage.value / 5371)
+    vbat = ((vbat_voltage.value / 2 ** 16) * 3.3) * 2
+
+    return vbat
 
 
 # Detect if there is a voltage on the USB connector
@@ -110,6 +125,16 @@ def getObstacle(obstacle_pos):
 
 # --------------- MOTORS ---------------#
 
+# Get the number of repetitions per second of the motor
+def repetitionPerSecond():
+    vBatt = get_battery_voltage()
+    rpm = 20.3 * vBatt
+    print(rpm)
+    rps = rpm / 60
+    print(rps)
+    return rps
+
+
 # Convert the speed from 0 - 100% to 0 - 65535 for pwmio usage
 def setSpeed(speedValue):
     # Some filtering to fit the 0-100% range and increasing the minimum value (motors won't spin under 15%)
@@ -127,10 +152,9 @@ def setSpeed(speedValue):
 def moveForward(speed=100):
     pwm_value = setSpeed(speed)
 
-    # Faire avancer le robot à la vitesse spécifiée
     AIN1.duty_cycle = 0
-    AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = 0
+    AIN2.duty_cycle = pwm_value
     BIN2.duty_cycle = pwm_value
 
 
@@ -138,32 +162,29 @@ def moveForward(speed=100):
 def moveBackward(speed=100):
     pwm_value = setSpeed(speed)
 
-    # Faire avancer le robot à la vitesse spécifiée
-    AIN1.duty_cycle = pwm_value
-    AIN2.duty_cycle = 0
-    BIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = 0
+    AIN2.duty_cycle = 0
+    AIN1.duty_cycle = pwm_value
+    BIN1.duty_cycle = pwm_value
 
 
 # Turn the robot to the Left (0 - 100% speed)
 def turnLeft(speed=100):
     pwm_value = setSpeed(speed)
 
-    # Faire avancer le robot à la vitesse spécifiée
     AIN1.duty_cycle = 0
+    BIN2.duty_cycle = 0
     AIN2.duty_cycle = pwm_value
     BIN1.duty_cycle = pwm_value
-    BIN2.duty_cycle = 0
 
 
 # turn to the right
 def turnRight(speed=100):
     pwm_value = setSpeed(speed)
 
-    # Faire avancer le robot à la vitesse spécifiée
-    AIN1.duty_cycle = pwm_value
     AIN2.duty_cycle = 0
     BIN1.duty_cycle = 0
+    AIN1.duty_cycle = pwm_value
     BIN2.duty_cycle = pwm_value
 
 
@@ -215,15 +236,46 @@ def spinRightWheelBackward(speed=100):
     AIN2.duty_cycle = 0
 
 
-# Move the robot forward one step (= approx. 15cm)
-def moveOneStep(speed=100):
-    pwm_value = setSpeed(speed)
-    AIN1.duty_cycle = 0
-    AIN2.duty_cycle = pwm_value
-    BIN1.duty_cycle = 0
-    BIN2.duty_cycle = pwm_value
-    time.sleep(1)
+# Move the robot forward one step (= approx. 20cm)
+def moveOneStep(direction, distance=20):
+    global distance_per_revolution
+
+    required_rps = distance / distance_per_revolution
+    required_time = required_rps / repetitionPerSecond()
+
+    pwm_value = 65535
+
+    if direction == "forward":
+        AIN1.duty_cycle = 0
+        BIN1.duty_cycle = 0
+        AIN2.duty_cycle = pwm_value
+        BIN2.duty_cycle = pwm_value
+    elif direction == "backward":
+        BIN2.duty_cycle = 0
+        AIN2.duty_cycle = 0
+        AIN1.duty_cycle = pwm_value 
+        BIN1.duty_cycle = pwm_value
+
+    time.sleep(required_time)
     motorStop()
+
+
+def moveFromAngle(direction, angle=90):
+    global space_between_wheels
+    global wheel_diameter
+
+    gear_ratio = space_between_wheels / wheel_diameter
+
+    required_time = (angle / (360 * repetitionPerSecond())) * gear_ratio
+
+    if direction == "left":
+        turnLeft(100)
+        time.sleep(required_time)
+        motorStop()
+    elif direction == "right":
+        turnRight(100)
+        time.sleep(required_time)
+        motorStop()
 
 
 # --------------- BUZZER ---------------#
@@ -239,7 +291,8 @@ def playFrequency(frequency, waitTime, volume):
     """Joue une fréquence (en Hertz) pendant une durée donnée (en secondes) avec un volume spécifié."""
     buzzer = buzzerInit()
     buzzer.frequency = round(frequency)
-    buzzer.duty_cycle = int(2 ** (0.06 * volume + 9))  # La valeur 32768 correspond à un cycle de service de 50 % pour obtenir une onde carrée.
+    buzzer.duty_cycle = int(2 ** (
+            0.06 * volume + 9))  # La valeur 32768 correspond à un cycle de service de 50 % pour obtenir une onde carrée.
     time.sleep(waitTime)
     buzzer.deinit()
 
@@ -406,8 +459,8 @@ def scanWifiNetworks():
         MIN_RSSI = -90  # 0% RSSI
         rssi = max(min(network.rssi, MAX_RSSI), MIN_RSSI)
         percentage = (rssi - MIN_RSSI) / (MAX_RSSI - MIN_RSSI) * 100
-
         print("SSID:", network.ssid, ", Canal:", network.channel, ", RSSI:", network.rssi, " (", round(percentage),
               "%)")
     wifi.radio.stop_scanning_networks()
     return networks
+
