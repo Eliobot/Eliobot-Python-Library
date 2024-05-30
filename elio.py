@@ -1,5 +1,5 @@
 # Eliobot robot Library
-# version = '2'
+# version = '2.0'
 # 2023 ELIO SAS
 #
 # Project home:
