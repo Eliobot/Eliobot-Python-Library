@@ -243,7 +243,7 @@ class Eliobot:
         self.BIN1.duty_cycle = 0
         self.BIN2.duty_cycle = 0
 
-    def move_one_step(self, direction, distance):
+    def move_one_step(self, direction, distance=20):
         """
         Move the robot a certain distance.
 
