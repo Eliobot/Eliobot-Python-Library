@@ -303,6 +303,7 @@ class Eliobot:
         self.buzzer.frequency = round(frequency)
         self.buzzer.duty_cycle = int(2 ** (0.06 * volume + 9))
         time.sleep(duration)
+        buzzer.deinit()
 
     def play_note(self, note, duration, NOTES_FREQUENCIES, volume):
         """
