@@ -1,5 +1,5 @@
 # Eliobot robot Library
-# version = '2.0'
+# version = '2.1'
 # 2023 ELIO SAS
 #
 # Project home:
@@ -303,7 +303,7 @@ class Eliobot:
         self.buzzer.frequency = round(frequency)
         self.buzzer.duty_cycle = int(2 ** (0.06 * volume + 9))
         time.sleep(duration)
-        buzzer.deinit()
+        self.buzzer.duty_cycle = 0
 
     def play_note(self, note, duration, NOTES_FREQUENCIES, volume):
         """
@@ -319,6 +319,7 @@ class Eliobot:
             frequency = NOTES_FREQUENCIES[note]
             if frequency != 0.1:
                 self.play_tone(frequency, duration, volume)
+                self.buzzer.duty_cycle = 0
             else:
                 time.sleep(duration)
 
@@ -437,7 +438,7 @@ class Eliobot:
             threshold (float): The calculated threshold value for line detection.
         """
         calibration_data = {
-            'threshold': threshold
+            'line_threshold': threshold
         }
         with open('config.json', 'w') as file:
             json.dump(calibration_data, file)
