@@ -10,6 +10,7 @@
 
 import json
 import math
+import re
 import time
 import wifi
 
@@ -322,6 +323,154 @@ class Eliobot:
                 self.buzzer.duty_cycle = 0
             else:
                 time.sleep(duration)
+
+    def play_notes(self, notes: list[tuple[float | None, float]], volume: int = 80) -> None:
+        """
+        Plays notes on the buzzer.
+
+        Args:
+            notes (list): Tuples of frequency in Hz (0|None for silence), duration in seconds.
+            volume (int): Volume of the tone. Defaults to 80.
+        """
+        for freq, duration in notes:
+            if freq is None or freq == 0:
+                time.sleep(duration)
+            else:
+                self.play_tone(freq, duration, volume)
+
+    # Convert note letters to semitones offsets from A in the same octave
+    NOTE_OFFSETS = {
+        "c": -9,
+        "c#": -8,
+        "d": -7,
+        "d#": -6,
+        "e": -5,
+        "f": -4,
+        "f#": -3,
+        "g": -2,
+        "g#": -1,
+        "a": 0,
+        "a#": 1,
+        "b": 2,
+    }
+
+    @staticmethod
+    def note_to_frequency(note: int) -> float:
+        """
+        Converts a note to its frequency in equal temperament.
+
+        A440 (A4) is note 69, like in the MIDI standard. C4 is note 60.
+
+        Args:
+            note: Note number in semitones (12 per octave).
+
+        Returns:
+            float: Frequency of the note in Hz.
+        """
+        semitone_ratio = 2 ** (1 / 12)
+
+        return semitone_ratio ** (note - 69) * 440
+
+    @staticmethod
+    def read_rtttl(song: str, micro_pause: float = 0.001) -> list[tuple[float | None, float]]:
+        """
+        Reads notes from an RTTTL string.
+
+        https://en.wikipedia.org/wiki/Ring_Tone_Text_Transfer_Language
+
+        Args:
+            song (str): RTTTL string.
+            micro_pause (float): Length of pause between notes. Defaults to 0.001
+
+        Returns:
+            list: Tuples of frequency in Hz (None for silence) and duration in seconds.
+            Play with play_notes()
+        """
+        song = song.lower()
+
+        # The first part may contain a title
+        *_, headers, note_data = song.split(":")
+
+        headers = headers.strip()
+        default_duration, default_octave, tempo = headers.split(",")
+
+        default_duration = int(default_duration.strip()[2:])
+        default_octave = int(default_octave.strip()[2:])
+        tempo = int(tempo.strip()[2:])
+
+        bar_duration = 4 * 60 / tempo
+
+        note_data = note_data.strip().split(",")
+
+        # [(frequency, duration)]
+        # frequency=None for a pause
+        notes: list[tuple[float | None, float]] = []
+
+        # [0-9]* : Digits (Duration fraction), may be empty
+        # [a-gp]#? : a to g (notes), or p (pause), and maybe a #
+        # [0-9]* : Digits (Octave), may be empty
+        # \.? : A dot, may be empty
+        note_re = re.compile(r"([0-9]*)([a-gp]#?)([0-9]*)(\.?)")
+
+        for note_string in note_data:
+            note_string = note_string.strip()
+            re_match = note_re.match(note_string)
+
+            if re_match is None:
+                raise ValueError(
+                    f'Expected a note like "[0-9]*[a-gp]#?[0-9]*\\.?"'
+                    f' but got "{note_string}" instead.'
+                )
+
+            duration_fraction, letter, octave, dot = re_match.groups()
+
+            if duration_fraction == "":
+                duration_fraction = default_duration
+            else:
+                duration_fraction = int(duration_fraction)
+
+            if octave == "":
+                octave = default_octave
+            else:
+                octave = int(octave)
+
+            duration = bar_duration / duration_fraction
+
+            if dot == ".":
+                duration *= 1.5
+
+            if letter == "p":
+                freq = None  # silence
+            else:
+                # A4 becomes 48
+                # add 21 to reach 69 (value of A4 in MIDI)
+                note_value = Eliobot.NOTE_OFFSETS[letter] + octave * 12 + 21
+                freq = Eliobot.note_to_frequency(note_value)
+
+            if duration > micro_pause:
+                # Normal note
+                notes.append((freq, duration - micro_pause))
+                if micro_pause > 0:
+                    notes.append((None, micro_pause))
+            else:
+                # Note is too short (or pause too long)
+                notes.append((freq, duration))
+
+        return notes
+
+    def play_rtttl(self, song: str, volume: int = 80, micro_pause: float = 0.001) -> None:
+        """
+        Plays notes from an RTTTL string.
+
+        https://en.wikipedia.org/wiki/Ring_Tone_Text_Transfer_Language
+
+        Args:
+            song (str): RTTTL string.
+            volume (int): Volume of the tone. Defaults to 80.
+            micro_pause (float): Length of pause between notes. Defaults to 0.001.
+        """
+        notes = Eliobot.read_rtttl(song, micro_pause)
+        self.play_notes(notes)
 
     # --------------- LINE FOLLOWING ---------------#
 
