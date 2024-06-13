@@ -338,22 +338,6 @@ class Eliobot:
             else:
                 self.play_tone(freq, duration, volume)
 
-    # Convert note letters to semitones offsets from A in the same octave
-    NOTE_OFFSETS = {
-        "c": -9,
-        "c#": -8,
-        "d": -7,
-        "d#": -6,
-        "e": -5,
-        "f": -4,
-        "f#": -3,
-        "g": -2,
-        "g#": -1,
-        "a": 0,
-        "a#": 1,
-        "b": 2,
-    }
-
     @staticmethod
     def note_to_frequency(note: int) -> float:
         """
@@ -386,6 +370,23 @@ class Eliobot:
             list: Tuples of frequency in Hz (None for silence) and duration in seconds.
             Play with play_notes()
         """
+        # Convert note letters to semitones offsets from A in the same octave
+        NOTE_OFFSETS = {
+            "c": -9,
+            "c#": -8,
+            "d": -7,
+            "d#": -6,
+            "e": -5,
+            "f": -4,
+            "f#": -3,
+            "g": -2,
+            "g#": -1,
+            "a": 0,
+            "a#": 1,
+            "b": 2,
+        }
+
+
         song = song.lower()
 
         # The first part may contain a title
@@ -418,8 +419,8 @@ class Eliobot:
 
             if re_match is None:
                 raise ValueError(
-                    f'Expected a note like "[0-9]*[a-gp]#?[0-9]*\\.?"'
-                    f' but got "{note_string}" instead.'
+                    'Expected a note like "[0-9]*[a-gp]#?[0-9]*\\.?"'
+                    ' but got "' + note_string + '" instead.'
                 )
 
             duration_fraction, letter, octave, dot = re_match.groups()
@@ -444,7 +445,7 @@ class Eliobot:
             else:
                 # A4 becomes 48
                 # add 21 to reach 69 (value of A4 in MIDI)
-                note_value = Eliobot.NOTE_OFFSETS[letter] + octave * 12 + 21
+                note_value = NOTE_OFFSETS[letter] + octave * 12 + 21
                 freq = Eliobot.note_to_frequency(note_value)
 
             if duration > micro_pause:
