@@ -1,7 +1,18 @@
+# Eliobot MATRIX LED
+#
+# 2023 ELIO SAS
+#
+# Project home:
+#   https://eliobot.com
+#
+
+#------------- LIBRARIES IMPORT --------------#
+
 import neopixel
 import board
 import time
 
+#--------------- MATRIX CLASS ---------------#
 
 class MatrixLED:
     def __init__(self, pin):
