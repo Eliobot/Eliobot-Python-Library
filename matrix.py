@@ -24,9 +24,73 @@ class MatrixLED:
 
         Attributes:
         matrix (NeoPixel): An instance of the NeoPixel class to control the LED matrix.
+        logo (list of bools): A list representing the LED status (on/off) for displaying the logo.
         """
 
         self.matrix = neopixel.NeoPixel(pin, 25, brightness, auto_write=False, pixel_order=neopixel.GRB)
+
+        self.logoHeart = [
+            False, True, False, True, False,
+            True, False, True, False, True,
+            True, False, False, False, True,
+            False, True, False, True, False,
+            False, False, True, False, False]
+
+        self.logoSmiley = [
+            False, True, False, True, False,
+            False, False, False, False, False,
+            False, True, False, True, False,
+            True, False, False, False, True,
+            False, True, True, True, False]
+
+        self.logoSad = [
+            False, True, False, True, False,
+            False, False, False, False, False,
+            True, False, False, False, True,
+            False, True, False, True, False,
+            False, False, True, False, False]
+
+        self.logoArrowUp = [
+            False, False, True, False, False,
+            False, True, True, True, False,
+            True, False, True, False, True,
+            False, False, True, False, False,
+            False, False, True, False, False]
+
+        self.logoArrowDown = [
+            False, False, True, False, False,
+            False, False, True, False, False,
+            True, False, True, False, True,
+            False, True, True, True, False,
+            False, False, True, False, False]
+
+        self.logoArrowLeft = [
+            False, False, True, False, False,
+            False, True, False, False, False,
+            True, True, True, True, True,
+            False, True, False, False, False,
+            False, False, True, False, False]
+
+        self.logoArrowRight = [
+            False, False, True, False, False,
+            False, False, False, True, False,
+            True, True, True, True, True,
+            False, False, False, True, False,
+            False, False, True, False, False]
+
+        self.logoCross = [
+            True, False, False, False, True,
+            False, True, False, True, False,
+            False, False, True, False, False,
+            False, True, False, True, False,
+            True, False, False, False, True]
+
+        self.logoCheck = [
+            False, False, False, False, True,
+            False, False, False, True, False,
+            True, False, True, False, False,
+            False, True, False, False, False,
+            False, False, False, False, False]
 
     def set_matrix_colors(self, led_colors):
         """
@@ -105,71 +169,6 @@ class MatrixLED:
                         self.matrix[idx] = (0, 0, 0)
             self.matrix.show()
             time.sleep(speed)
-
-    # Logo
-
-    logoHeart = [
-        False, True, False, True, False,
-        True, False, True, False, True,
-        True, False, False, False, True,
-        False, True, False, True, False,
-        False, False, True, False, False]
-
-    logoSmiley = [
-        False, True, False, True, False,
-        False, False, False, False, False,
-        False, True, False, True, False,
-        True, False, False, False, True,
-        False, True, True, True, False]
-
-    logoSad = [
-        False, True, False, True, False,
-        False, False, False, False, False,
-        True, False, False, False, True,
-        False, True, False, True, False,
-        False, False, True, False, False]
-
-    logoArrowUp = [
-        False, False, True, False, False,
-        False, True, True, True, False,
-        True, False, True, False, True,
-        False, False, True, False, False,
-        False, False, True, False, False]
-
-    logoArrowDown = [
-        False, False, True, False, False,
-        False, False, True, False, False,
-        True, False, True, False, True,
-        False, True, True, True, False,
-        False, False, True, False, False]
-
-    logoArrowLeft = [
-        False, False, True, False, False,
-        False, True, False, False, False,
-        True, True, True, True, True,
-        False, True, False, False, False,
-        False, False, True, False, False]
-
-    logoArrowRight = [
-        False, False, True, False, False,
-        False, False, False, True, False,
-        True, True, True, True, True,
-        False, False, False, True, False,
-        False, False, True, False, False]
-
-    logoCross = [
-        True, False, False, False, True,
-        False, True, False, True, False,
-        False, False, True, False, False,
-        False, True, False, True, False,
-        True, False, False, False, True]
-
-    logoCheck = [
-        False, False, False, False, True,
-        False, False, False, True, False,
-        True, False, True, False, False,
-        False, True, False, False, False,
-        False, False, False, False, False]
 
     # 5x5 matrix index mapping
     m_matrix = [
