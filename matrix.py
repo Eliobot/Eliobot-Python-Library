@@ -5,25 +5,68 @@ import time
 
 class MatrixLED:
     def __init__(self, pin):
+        """
+        Initializes a new instance of the MatrixLED class.
+
+        Args:
+        pin (Pin): The pin object from the board module which the NeoPixel LED matrix is connected to.
+
+        Attributes:
+        matrix (NeoPixel): An instance of the NeoPixel class to control the LED matrix.
+        """
+
         self.matrix = neopixel.NeoPixel(pin, 25, brightness=0.2, auto_write=False, pixel_order=neopixel.GRB)
 
     def set_matrix_colors(self, led_colors):
+        """
+       Sets the colors of all LEDs in the matrix.
+
+       Args:
+       led_colors (list of tuples): A list of RGB tuples where each tuple represents the color for each LED.
+       """
+
         for i, color in enumerate(led_colors):
             if 0 <= i < 25:
                 self.matrix[i] = color
         self.matrix.show()
 
     def clear_matrix(self):
+        """
+        Turns off all LEDs in the matrix by setting their color to black (0, 0, 0).
+        """
+
         for i in range(25):
             self.matrix[i] = (0, 0, 0)
         self.matrix.show()
 
     def set_matrix_logo(self, color, logo):
+        """
+       Displays a logo on the LED matrix.
+
+       Args:
+       color (tuple): An RGB tuple specifying the color of the logo.
+       logo (list of bools): A list representing the LED status (on/off) for displaying the logo.
+       """
+
         for i, led in enumerate(logo):
             self.matrix[i] = color if led else (0, 0, 0)
         self.matrix.show()
 
     def scroll_matrix_text(self, text, color, speed=0.1):
+        """
+        Scrolls text across the LED matrix from right to left.
+
+        Args:
+        text (str): The text to scroll.
+        color (tuple): An RGB tuple specifying the color of the text.
+        speed (float): The delay in seconds between shifts, controlling the scroll speed.
+
+        Details:
+        Each character in the text is represented by a 5x5 matrix pattern. The function handles smooth
+        scrolling of text across the LED matrix, including managing character spacing and ensuring characters
+        exit the display one column at a time.
+        """
+
         width = 5  # Assume each character is 5 columns wide
         space = 1  # Space between characters
 
@@ -51,6 +94,71 @@ class MatrixLED:
                         self.matrix[idx] = (0, 0, 0)
             self.matrix.show()
             time.sleep(speed)
+
+    # Logo
+
+    logoHeart = [
+        False, True, False, True, False,
+        True, False, True, False, True,
+        True, False, False, False, True,
+        False, True, False, True, False,
+        False, False, True, False, False]
+
+    logoSmiley = [
+        False, True, False, True, False,
+        False, False, False, False, False,
+        False, True, False, True, False,
+        True, False, False, False, True,
+        False, True, True, True, False]
+
+    logoSad = [
+        False, True, False, True, False,
+        False, False, False, False, False,
+        True, False, False, False, True,
+        False, True, False, True, False,
+        False, False, True, False, False]
+
+    logoArrowUp = [
+        False, False, True, False, False,
+        False, True, True, True, False,
+        True, False, True, False, True,
+        False, False, True, False, False,
+        False, False, True, False, False]
+
+    logoArrowDown = [
+        False, False, True, False, False,
+        False, False, True, False, False,
+        True, False, True, False, True,
+        False, True, True, True, False,
+        False, False, True, False, False]
+
+    logoArrowLeft = [
+        False, False, True, False, False,
+        False, True, False, False, False,
+        True, True, True, True, True,
+        False, True, False, False, False,
+        False, False, True, False, False]
+
+    logoArrowRight = [
+        False, False, True, False, False,
+        False, False, False, True, False,
+        True, True, True, True, True,
+        False, False, False, True, False,
+        False, False, True, False, False]
+
+    logoCross = [
+        True, False, False, False, True,
+        False, True, False, True, False,
+        False, False, True, False, False,
+        False, True, False, True, False,
+        True, False, False, False, True]
+
+    logoCheck = [
+        False, False, False, False, True,
+        False, False, False, True, False,
+        True, False, True, False, False,
+        False, True, False, False, False,
+        False, False, False, False, False]
 
     # 5x5 matrix index mapping
     m_matrix = [
