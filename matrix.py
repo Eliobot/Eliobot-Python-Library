@@ -15,7 +15,7 @@ import time
 #--------------- MATRIX CLASS ---------------#
 
 class MatrixLED:
-    def __init__(self, pin):
+    def __init__(self, pin, brightness=0.2):
         """
         Initializes a new instance of the MatrixLED class.
 
@@ -26,7 +26,7 @@ class MatrixLED:
         matrix (NeoPixel): An instance of the NeoPixel class to control the LED matrix.
         """
 
-        self.matrix = neopixel.NeoPixel(pin, 25, brightness=0.2, auto_write=False, pixel_order=neopixel.GRB)
+        self.matrix = neopixel.NeoPixel(pin, 25, brightness, auto_write=False, pixel_order=neopixel.GRB)
 
     def set_matrix_colors(self, led_colors):
         """
