@@ -37,18 +37,18 @@ class MatrixLED:
             False, False, True, False, False]
 
         self.logoSmiley = [
-            False, True, False, True, False,
             False, False, False, False, False,
             False, True, False, True, False,
+            False, False, False, False, False,
             True, False, False, False, True,
             False, True, True, True, False]
 
         self.logoSad = [
+            False, False, False, False, False,
             False, True, False, True, False,
             False, False, False, False, False,
-            True, False, False, False, True,
-            False, True, False, True, False,
-            False, False, True, False, False]
+            False, True, True, True, False,
+            True, False, False, False, True]
 
         self.logoArrowUp = [
             False, False, True, False, False,
