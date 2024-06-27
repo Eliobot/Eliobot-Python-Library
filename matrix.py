@@ -114,7 +114,7 @@ class MatrixLED:
             self.matrix[i] = (0, 0, 0)
         self.matrix.show()
 
-    def set_matrix_logo(self, color, logo):
+    def set_matrix_logo(self, logo, color):
         """
        Displays a logo on the LED matrix.
 
