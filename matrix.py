@@ -27,7 +27,7 @@ class MatrixLED:
         logo (list of bools): A list representing the LED status (on/off) for displaying the logo.
         """
 
-        self.matrix = neopixel.NeoPixel(pin, 25, brightness, auto_write=False, pixel_order=neopixel.GRB)
+        self.matrix = neopixel.NeoPixel(pin, 25, brightness=brightness, auto_write=False, pixel_order=neopixel.GRB)
 
         self.logoHeart = [
             False, True, False, True, False,
