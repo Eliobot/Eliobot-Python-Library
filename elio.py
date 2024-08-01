@@ -1,5 +1,5 @@
 # Eliobot robot Library
-# version = '2.1'
+# version = '2.2'
 # 2023 ELIO SAS
 #
 # Project home:
@@ -479,6 +479,7 @@ class Eliobot:
             f.write(f'CIRCUITPY_WIFI_SSID = "{ssid}"\n')
             f.write(f'CIRCUITPY_WIFI_PASSWORD = "{password}"\n')
             f.write(f'CIRCUITPY_WEB_API_PASSWORD = "{webpassword}"\n')
+            f.write(f'CIRCUITPY_WEB_API_PORT = 8080')
 
         print("Settings saved")
         print("Restart the board to connect to the wifi network")
@@ -502,6 +503,10 @@ class Eliobot:
             ssid (str): The SSID for the access point.
             password (str): The password for the access point.
         """
+
+        with open('settings.toml', 'w') as f:
+            f.write(f'CIRCUITPY_WEB_API_PORT = 8080')
+
         wifi.radio.enabled = True
         wifi.radio.start_ap(ssid, password)
 
