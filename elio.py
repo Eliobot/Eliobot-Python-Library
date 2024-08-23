@@ -37,6 +37,7 @@ class Motors:
         self.AIN2 = AIN2
         self.BIN1 = BIN1
         self.BIN2 = BIN2
+        self.vBatt_pin = vBatt_pin
 
     def repetition_per_second(self):
         """
