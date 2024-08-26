@@ -501,8 +501,8 @@ class WiFiConnectivity:
         Connect to a wifi network.
 
         :arg
-            ssid (str): The SSID of the wifi network.
-            password (str): The password of the wifi network.
+            ssid (str): The SSID of the WiFi network.
+            password (str): The password of the WiFi network.
             webpassword (str): The web API password.
         """
         with open('settings.toml', 'w') as f:
@@ -517,7 +517,7 @@ class WiFiConnectivity:
     @staticmethod
     def disconnect_from_wifi():
         """
-        Disconnect from the wifi network.
+        Disconnect from the WiFi network.
         """
         wifi.radio.enabled = False
         while wifi.radio.connected:
@@ -543,10 +543,10 @@ class WiFiConnectivity:
     @staticmethod
     def scan_wifi_networks():
         """
-        Scan for available wifi networks.
+        Scan for available WiFi networks.
 
         :return
-            list: A list of available wifi networks.
+            list: A list of available WiFi networks.
         """
         wifi.radio.enabled = True
         networks = wifi.radio.start_scanning_networks()
