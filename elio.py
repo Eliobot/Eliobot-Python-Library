@@ -571,7 +571,6 @@ class IRRemote:
 
         self.ir_receiver = ir_receiver
 
-    @staticmethod
     def decode_signal(self):
         """
         Decode the IR signal.
