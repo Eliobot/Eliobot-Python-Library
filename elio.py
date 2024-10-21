@@ -1,5 +1,7 @@
 # Eliobot robot Library
 # version = '3.0'
+# CircuitPython = '9.X.X'
+#
 # 2023 ELIO SAS
 #
 # Project home:
@@ -13,7 +15,6 @@ import math
 import time
 import wifi
 import adafruit_irremote
-
 
 #------------- ELIOBOT CLASS --------------#
 
