@@ -48,6 +48,8 @@ class Motors:
             float: The number of repetitions per second.
         """
         vBatt = self.get_battery_voltage()
+        if vBatt < 2:
+            vBatt = 2
         rpm = 20.3 * vBatt
         rps = rpm / 60
         return rps
