@@ -1,5 +1,7 @@
 # Eliobot robot Library
-# version = '2.1'
+# version = '3.0'
+# CircuitPython = '9.X.X'
+#
 # 2023 ELIO SAS
 #
 # Project home:
@@ -12,109 +14,42 @@ import json
 import math
 import time
 import wifi
+import adafruit_irremote
 
-#--------------- ELIOBOT CLASS ---------------#
+#------------- ELIOBOT CLASS --------------#
 
-
-class Eliobot:
+class Motors:
     SPACE_BETWEEN_WHEELS = 77.5  # mm
     WHEEL_DIAMETER = 33.5  # mm
     DISTANCE_PER_REVOLUTION = (WHEEL_DIAMETER * math.pi) / 10  # cm
 
-    def __init__(self,
-                 AIN1,
-                 AIN2,
-                 BIN1,
-                 BIN2,
-                 vBatt_pin,
-                 obstacleInput,
-                 buzzer,
-                 lineInput,
-                 lineCmd):
+    def __init__(self, AIN1, AIN2, BIN1, BIN2, vBatt_pin):
         """
-        Initialize Eliobot with the given hardware components.
+        Initialize the motor pins.
 
-        Args:
+        :arg
             AIN1: Motor control pin for direction 1 on motor A.
             AIN2: Motor control pin for direction 2 on motor A.
             BIN1: Motor control pin for direction 1 on motor B.
             BIN2: Motor control pin for direction 2 on motor B.
-            vBatt_pin: Pin to read battery voltage.
-            obstacleInput: List of obstacle sensor inputs.
-            buzzer: Buzzer control object.
-            lineInput: List of line sensor inputs.
-            lineCmd: Line sensor command pin.
         """
+
         self.AIN1 = AIN1
         self.AIN2 = AIN2
         self.BIN1 = BIN1
         self.BIN2 = BIN2
         self.vBatt_pin = vBatt_pin
-        self.obstacleInput = obstacleInput
-        self.buzzer = buzzer
-        self.lineInput = lineInput
-        self.lineCmd = lineCmd
-
-    # --------------- INTERNAL VOLTAGES ---------------#
-
-    def get_battery_voltage(self):
-        """
-        Get the battery voltage.
-
-        Returns:
-            float: The current battery voltage.
-        """
-        return ((self.vBatt_pin.value / 2 ** 16) * 3.3) * 2
-
-    # --------------- COLORS ---------------#
-
-    @staticmethod
-    def rgb_color_wheel(wheel_pos):
-        """
-        Generate a color from the color wheel based on the given position.
-
-        Args:
-            wheel_pos (int): Position on the color wheel (0-255).
-
-        Returns:
-            tuple: The RGB values corresponding to the color-wheel position.
-        """
-        wheel_pos = wheel_pos % 255
-
-        if wheel_pos < 85:
-            return 255 - wheel_pos * 3, 0, wheel_pos * 3
-        elif wheel_pos < 170:
-            wheel_pos -= 85
-            return 0, wheel_pos * 3, 255 - wheel_pos * 3
-        else:
-            wheel_pos -= 170
-            return wheel_pos * 3, 255 - wheel_pos * 3, 0
-
-    # --------------- OBSTACLE SENSORS ---------------#
-
-    def get_obstacle(self, obstacle_pos):
-        """
-        Check if there is an obstacle in front of the specified sensor.
-
-        Args:
-            obstacle_pos (int): The position of the obstacle sensor.
-
-        Returns:
-            bool: True if an obstacle is detected, False otherwise.
-        """
-        value = self.obstacleInput[obstacle_pos].value
-        return value < 10000
-
-    # --------------- MOTORS ---------------#
 
     def repetition_per_second(self):
         """
         Calculate the number of repetitions per second the motor can perform.
 
-        Returns:
+        :return
             float: The number of repetitions per second.
         """
         vBatt = self.get_battery_voltage()
+        if vBatt < 2:
+            vBatt = 2
         rpm = 20.3 * vBatt
         rps = rpm / 60
         return rps
@@ -124,10 +59,10 @@ class Eliobot:
         """
         Set the speed of the motor.
 
-        Args:
+        :arg
             speed_value (int): Desired speed value (0-100).
 
-        Returns:
+        :return
             int: The PWM value corresponding to the desired speed.
         """
         if speed_value > 100:
@@ -141,7 +76,7 @@ class Eliobot:
         """
         Move the robot forward.
 
-        Args:
+        :arg
             speed (int, optional): Speed of the robot (0-100). Defaults to 100.
         """
         pwm_value = self.set_speed(speed)
@@ -154,7 +89,7 @@ class Eliobot:
         """
         Move the robot backward.
 
-        Args:
+        :arg
             speed (int, optional): Speed of the robot (0-100). Defaults to 100.
         """
         pwm_value = self.set_speed(speed)
@@ -167,7 +102,7 @@ class Eliobot:
         """
         Turn the robot left.
 
-        Args:
+        :arg
             speed (int, optional): Speed of the robot (0-100). Defaults to 100.
         """
         pwm_value = self.set_speed(speed)
@@ -180,7 +115,7 @@ class Eliobot:
         """
         Turn the robot right.
 
-        Args:
+        :arg
             speed (int, optional): Speed of the robot (0-100). Defaults to 100.
         """
         pwm_value = self.set_speed(speed)
@@ -192,6 +127,9 @@ class Eliobot:
     def spin_left_wheel_forward(self, speed=100):
         """
         Spin the left wheel forward.
+
+        :arg
+            speed (int, optional): Speed of the wheel (0-100). Defaults to 100.
         """
         pwm_value = self.set_speed(speed)
 
@@ -201,6 +139,9 @@ class Eliobot:
     def spin_left_wheel_backward(self, speed=100):
         """
         Spin the left wheel backward.
+
+        :arg
+            speed (int, optional): Speed of the wheel (0-100). Defaults to 100.
         """
         pwm_value = self.set_speed(speed)
 
@@ -210,6 +151,9 @@ class Eliobot:
     def spin_right_wheel_forward(self, speed=100):
         """
         Spin the right wheel forward.
+
+        :arg
+            speed (int, optional): Speed of the wheel (0-100). Defaults to 100.
         """
         pwm_value = self.set_speed(speed)
 
@@ -219,6 +163,9 @@ class Eliobot:
     def spin_right_wheel_backward(self, speed=100):
         """
         Spin the right wheel backward.
+
+        :arg
+            speed (int, optional): Speed of the wheel (0-100). Defaults to 100.
         """
         pwm_value = self.set_speed(speed)
 
@@ -247,7 +194,7 @@ class Eliobot:
         """
         Move the robot a certain distance.
 
-        Args:
+        :arg
             direction (str): Direction to move ('forward' or 'backward').
             distance (int): Distance to move in centimeters.
         """
@@ -273,7 +220,7 @@ class Eliobot:
         """
         Turn the robot a certain angle.
 
-        Args:
+        :arg
             direction (str): Direction to turn ('left' or 'right').
             angle (int, optional): Angle to turn in degrees. Defaults to 90.
         """
@@ -289,16 +236,58 @@ class Eliobot:
             time.sleep(required_time)
             self.motor_stop()
 
-    # --------------- BUZZER ---------------#
+    # --------------- INTERNAL VOLTAGES ---------------#
+
+    def get_battery_voltage(self):
+        """
+        Get the battery voltage.
+
+        :return
+            float: The current battery voltage.
+        """
+        return ((self.vBatt_pin.value / 2 ** 16) * 3.3) * 2
+
+    # --------------- COLORS ---------------#
+
+    @staticmethod
+    def rgb_color_wheel(wheel_pos):
+        """
+        Generate a color from the color wheel based on the given position.
+
+        :arg
+            wheel_pos (int): Position on the color wheel (0-255).
+
+        :return
+            tuple: The RGB values corresponding to the color-wheel position.
+        """
+        wheel_pos = wheel_pos % 255
+
+        if wheel_pos < 85:
+            return 255 - wheel_pos * 3, 0, wheel_pos * 3
+        elif wheel_pos < 170:
+            wheel_pos -= 85
+            return 0, wheel_pos * 3, 255 - wheel_pos * 3
+        else:
+            wheel_pos -= 170
+            return wheel_pos * 3, 255 - wheel_pos * 3, 0
+
+
+class Buzzer:
+    def __init__(self, buzzer):
+        """
+        Initialize the buzzer.
+        :param buzzer: The buzzer initialized with pwmio.PWMOut
+        """
+        self.buzzer = buzzer
 
     def play_tone(self, frequency, duration, volume):
         """
         Play a tone with a certain frequency, duration, and volume.
 
-        Args:
-            frequency (float): Frequency of the tone in Hz.
-            duration (float): Duration of the tone in seconds.
-            volume (int): Volume of the tone.
+        :arg
+            frequency: Frequency of the tone.
+            duration: Duration of the tone.
+            volume: Volume of the tone.
         """
         self.buzzer.frequency = round(frequency)
         self.buzzer.duty_cycle = int(2 ** (0.06 * volume + 9))
@@ -309,7 +298,7 @@ class Eliobot:
         """
         Play a note from the notes frequencies dictionary with a certain duration and volume.
 
-        Args:
+        :arg
             note (str): Note to play.
             duration (float): Duration of the note in seconds.
             NOTES_FREQUENCIES (dict): Dictionary of notes and their corresponding frequencies.
@@ -323,6 +312,42 @@ class Eliobot:
             else:
                 time.sleep(duration)
 
+
+class ObstacleSensor:
+    def __init__(self, obstacleInput):
+        """
+        Initialize the obstacle sensor.
+        :param obstacleInput: The obstacle sensor initialized with analogio.AnalogIn
+        """
+        self.obstacleInput = obstacleInput
+
+    def get_obstacle(self, obstacle_pos):
+        """
+        Check if there is an obstacle in front of the specified sensor.
+
+        :arg
+            obstacle_pos (int): The position of the obstacle sensor.
+
+        :return
+            bool: True if an obstacle is detected, False otherwise.
+        """
+        value = self.obstacleInput[obstacle_pos].value
+        return value < 10000
+
+
+class LineSensor:
+    def __init__(self, lineInput, lineCmd, motorClass):
+        """
+        Initialize the line sensor.
+
+        :param lineInput: Array of line sensors initialized with analogio.AnalogIn
+        :param lineCmd: Led control pin for the line sensor initialized with digitalio.DigitalInOut
+        :param motorClass: Motor class initialized with Motors
+        """
+        self.lineInput = lineInput
+        self.lineCmd = lineCmd
+        self.motorClass = motorClass
+
     # --------------- LINE FOLLOWING ---------------#
 
     def get_line(self, line_pos):
@@ -333,10 +358,10 @@ class Eliobot:
         the lineCmd is active (reflective light) and when it is inactive
         (ambient light). This helps in determining the presence of a line.
 
-        Args:
+        :arg
             line_pos (int): The position of the line sensor.
 
-        Returns:
+        :return
             int: The value representing the difference between ambient light
             and reflected light, indicating the presence of a line.
         """
@@ -356,35 +381,35 @@ class Eliobot:
         """
         Follow the line using the line sensors.
 
-        Args:
+        :arg
             threshold (int): The threshold value for line detection.
         """
         speed = 60
 
         if self.get_line(2) < threshold:
-            self.move_forward(speed)
+            self.motorClass.move_forward(speed)
 
         elif self.get_line(0) < threshold:
-            self.motor_stop()
-            self.spin_right_wheel_forward(speed)
+            self.motorClass.motor_stop()
+            self.motorClass.spin_right_wheel_forward(speed)
             time.sleep(0.1)
 
         elif self.get_line(1) < threshold:
-            self.motor_stop()
-            self.spin_right_wheel_forward(speed)
+            self.motorClass.motor_stop()
+            self.motorClass.spin_right_wheel_forward(speed)
 
         elif self.get_line(3) < threshold:
-            self.motor_stop()
-            self.spin_left_wheel_forward(speed)
+            self.motorClass.motor_stop()
+            self.motorClass.spin_left_wheel_forward(speed)
 
         elif self.get_line(4) < threshold:
-            self.motor_stop()
-            self.spin_left_wheel_forward(speed)
+            self.motorClass.motor_stop()
+            self.motorClass.spin_left_wheel_forward(speed)
 
             time.sleep(0.1)
 
         else:
-            self.motor_stop()
+            self.motorClass.motor_stop()
 
     def calibrate_line_sensors(self):
         """
@@ -396,11 +421,11 @@ class Eliobot:
         all_values = [[] for _ in range(5)]
 
         for _ in range(num_samples):
-            self.move_one_step("forward", 5)
+            self.motorClass.move_one_step("forward", 5)
             time.sleep(1)
             self.update_sensor_values(all_values)
 
-            self.move_one_step("backward", 5)
+            self.motorClass.move_one_step("backward", 5)
             time.sleep(1)
             self.update_sensor_values(all_values)
 
@@ -420,7 +445,7 @@ class Eliobot:
         """
         Update the maximum and minimum values for the line sensors.
 
-        Args:
+        :arg
             all_values (list of lists): All sensor readings for further filtering.
         """
         for i in range(5):
@@ -434,7 +459,7 @@ class Eliobot:
         """
         Save the calibration data to a JSON file.
 
-        Args:
+        :arg
             threshold (float): The calculated threshold value for line detection.
         """
         calibration_data = {
@@ -448,10 +473,10 @@ class Eliobot:
         """
         Calculate the median of a list of numbers.
 
-        Args:
+        :arg
             data (list): The list of numbers to calculate the median for.
 
-        Returns:
+        :return
             float: The median value.
         """
         sorted_data = sorted(data)
@@ -463,22 +488,31 @@ class Eliobot:
             mid2 = sorted_data[n // 2]
             return (mid1 + mid2) / 2
 
-    # --------------- WIFI ---------------#
+
+class WiFiConnectivity:
+
+    def __init__(self):
+        """
+        WiFi connectivity class for connecting to a wifi network.
+        Help with basic wifi operations.
+        """
+        pass
 
     @staticmethod
     def connect_to_wifi(ssid, password, webpassword):
         """
         Connect to a wifi network.
 
-        Args:
-            ssid (str): The SSID of the wifi network.
-            password (str): The password of the wifi network.
+        :arg
+            ssid (str): The SSID of the WiFi network.
+            password (str): The password of the WiFi network.
             webpassword (str): The web API password.
         """
         with open('settings.toml', 'w') as f:
             f.write(f'CIRCUITPY_WIFI_SSID = "{ssid}"\n')
             f.write(f'CIRCUITPY_WIFI_PASSWORD = "{password}"\n')
             f.write(f'CIRCUITPY_WEB_API_PASSWORD = "{webpassword}"\n')
+            f.write(f'CIRCUITPY_WEB_API_PORT = 8080')
 
         print("Settings saved")
         print("Restart the board to connect to the wifi network")
@@ -486,7 +520,7 @@ class Eliobot:
     @staticmethod
     def disconnect_from_wifi():
         """
-        Disconnect from the wifi network.
+        Disconnect from the WiFi network.
         """
         wifi.radio.enabled = False
         while wifi.radio.connected:
@@ -498,20 +532,24 @@ class Eliobot:
         """
         Set the access point.
 
-        Args:
+        :arg
             ssid (str): The SSID for the access point.
             password (str): The password for the access point.
         """
+
+        with open('settings.toml', 'w') as f:
+            f.write(f'CIRCUITPY_WEB_API_PORT = 8080')
+
         wifi.radio.enabled = True
         wifi.radio.start_ap(ssid, password)
 
     @staticmethod
     def scan_wifi_networks():
         """
-        Scan for available wifi networks.
+        Scan for available WiFi networks.
 
-        Returns:
-            list: A list of available wifi networks.
+        :return
+            list: A list of available WiFi networks.
         """
         wifi.radio.enabled = True
         networks = wifi.radio.start_scanning_networks()
@@ -524,3 +562,28 @@ class Eliobot:
             print(f"SSID: {network.ssid}, Canal: {network.channel}, RSSI: {network.rssi} ({round(percentage)}%)")
         wifi.radio.stop_scanning_networks()
         return networks
+
+
+class IRRemote:
+    def __init__(self, ir_receiver):
+        """
+        Initialize the IR remote receiver.
+
+        :param ir_receiver: The IR receiver initialized with adafruit_irremote.IRReceiver
+        """
+
+        self.ir_receiver = ir_receiver
+
+    def decode_signal(self):
+        """
+        Decode the IR signal.
+
+        :return
+            int: The decoded IR signal.
+        """
+        decoder = adafruit_irremote.NonblockingGenericDecode(self.ir_receiver)
+        for message in decoder.read():
+            if isinstance(message, adafruit_irremote.IRMessage):
+                return message.code
+            else:
+                return None
