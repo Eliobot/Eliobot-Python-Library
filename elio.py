@@ -8,7 +8,7 @@
 #   https://eliobot.com
 #
 
-#------------- LIBRARIES IMPORT --------------#
+# ------------- LIBRARIES IMPORT --------------#
 
 import json
 import math
@@ -16,7 +16,8 @@ import time
 import wifi
 import adafruit_irremote
 
-#------------- ELIOBOT CLASS --------------#
+
+# ------------- ELIOBOT CLASS --------------#
 
 class Motors:
     SPACE_BETWEEN_WHEELS = 77.5  # mm
@@ -236,6 +237,27 @@ class Motors:
             time.sleep(required_time)
             self.motor_stop()
 
+    def turn_in_place(self, speed=30, direction="left"):
+        """
+        Turn the robot in place.
+
+        :arg
+            speed (int): Speed of the robot (0-100).
+            direction (str): Rotation direction ('left' or 'right').
+        """
+        pwm_value = self.set_speed(speed)
+
+        if direction == "left":
+            self.AIN1.duty_cycle = pwm_value
+            self.AIN2.duty_cycle = 0
+            self.BIN1.duty_cycle = 0
+            self.BIN2.duty_cycle = pwm_value
+        elif direction == "right":
+            self.AIN1.duty_cycle = 0
+            self.AIN2.duty_cycle = pwm_value
+            self.BIN1.duty_cycle = pwm_value
+            self.BIN2.duty_cycle = 0
+
     # --------------- INTERNAL VOLTAGES ---------------#
 
     def get_battery_voltage(self):
@@ -413,33 +435,50 @@ class LineSensor:
 
     def calibrate_line_sensors(self):
         """
-        Calibrate the line sensors by moving the robot forward and backward,
+        Calibrate the line sensors by rotating the robot in place,
         collecting maximum and minimum sensor values, and calculating the
-        threshold.
+        detection threshold. Then, align the robot so that sensor 2 sees the line.
         """
-        num_samples = 3
+        num_samples = 30
         all_values = [[] for _ in range(5)]
 
+        print("Starting calibration... Place the robot over the line.")
+
+        # Rotate in place and collect sensor values
         for _ in range(num_samples):
-            self.motorClass.move_one_step("forward", 5)
-            time.sleep(1)
+            self.motorClass.turn_in_place(speed=30, direction="left")
+            time.sleep(0.05)
             self.update_sensor_values(all_values)
 
-            self.motorClass.move_one_step("backward", 5)
-            time.sleep(1)
-            self.update_sensor_values(all_values)
+        self.motorClass.motor_stop()
 
+        # Extract max and min for each sensor
         max_values = [max(sensor_values) for sensor_values in all_values]
         min_values = [min(sensor_values) for sensor_values in all_values]
 
+        # Compute average max/min and threshold
         avg_max_value = self.calculate_median(max_values)
         avg_min_value = self.calculate_median(min_values)
         threshold = avg_min_value + (avg_max_value - avg_min_value) / 2
 
+        # Save threshold (as before)
         self.save_calibration_data(threshold)
 
-        print("Calibration completed:")
+        print("Calibration completed.")
         print("Calculated Threshold:", threshold)
+        print("Rotating to align with the line using sensor 2...")
+
+        # Align with the line when sensor 2 sees it
+        while True:
+            self.motorClass.turn_in_place(speed=10, direction="left")
+            time.sleep(0.02)
+
+            center_value = self.get_line(0)
+
+            if center_value < threshold:
+                self.motorClass.motor_stop()
+                print("Sensor 2 detected the line. Robot aligned.")
+                break
 
     def update_sensor_values(self, all_values):
         """
@@ -587,3 +626,4 @@ class IRRemote:
                 return message.code
             else:
                 return None
+
