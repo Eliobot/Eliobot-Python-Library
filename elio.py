@@ -1,5 +1,5 @@
 # Eliobot robot Library
-# version = '3.0'
+# version = '3.1'
 # CircuitPython = '9.X.X'
 #
 # 2023 ELIO SAS
