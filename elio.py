@@ -547,7 +547,7 @@ class LineSensor:
             self.motorClass.turn_in_place(speed=10, direction="left")
             time.sleep(0.02)
 
-            center_value = self.get_line(0)
+            center_value = self.get_line(2)
 
             if center_value < threshold:
                 self.motorClass.motor_stop()
