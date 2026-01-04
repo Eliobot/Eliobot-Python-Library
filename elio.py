@@ -774,7 +774,7 @@ class EyesMatrix:
         Turns off all LEDs in the matrix by setting their color to black (0, 0, 0).
         """
 
-        for i in range(25):
+        for i in range(128):
             self.matrix[i] = (0, 0, 0)
         self.matrix.show()
 
