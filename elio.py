@@ -14,6 +14,7 @@ import json
 import math
 import time
 import wifi
+import busio
 import adafruit_irremote
 import random
 import neopixel
@@ -722,6 +723,36 @@ class IRRemote:
                 return message.code
             else:
                 return None
+
+class BackpackI2C:
+    def __init__(self, SCL, SDA, address=0x32):
+        self.address = address
+        self.i2c = busio.I2C(SCL, SDA)
+
+    def scan(self):
+        if not self.i2c.try_lock():
+            return ""
+        try:
+            devices = self.i2c.scan()
+            return str(hex(devices[0])) if devices else "none"
+        except Exception:
+            return "error"
+        finally:
+            self.i2c.unlock()
+
+    def read(self, num_bytes):
+        if not self.i2c.try_lock():
+            return bytearray()
+        try:
+            buf = bytearray(num_bytes)
+            self.i2c.readfrom_into(self.address, buf)
+            return buf
+        except Exception as e:
+            print(f"I2C read error: {e}")
+            return bytearray()
+        finally:
+            self.i2c.unlock()
+
 
 class EyesMatrix:
     def __init__(self, pin, brightness=0.05):
