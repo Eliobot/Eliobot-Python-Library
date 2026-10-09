@@ -1,5 +1,5 @@
 # Eliobot robot Library
-# version = '4.0'
+# version = '4.0.1'
 # CircuitPython = '9.X.X'
 #
 # 2023 ELIO SAS
@@ -602,6 +602,48 @@ class LineSensor:
             return (mid1 + mid2) / 2
 
 
+# The public default sent by Elioblocs' Wi-Fi block. Writing it would open the
+# CircuitPython web workflow (file editor) to anyone on the same network with a
+# password everybody knows, so it is ignored.
+_PUBLIC_WEB_PASSWORD = 'webpassword'
+
+
+def _toml_string(value):
+    """Quote a value for settings.toml."""
+    return '"' + str(value).replace('\\', '\\\\').replace('"', '\\"') + '"'
+
+
+def _update_settings(values, remove=None):
+    """
+    Set some keys of settings.toml and keep every other line (the robot's
+    name, colour and backpack written by Elioblocs, the Wi-Fi...).
+
+    :arg
+        values (dict): keys to set, values already formatted for TOML.
+        remove (dict): keys to delete, only when their current value is the
+            one given (formatted for TOML).
+    """
+    try:
+        with open('settings.toml', 'r') as f:
+            lines = f.read().split('\n')
+    except OSError:
+        lines = []
+    kept = []
+    for line in lines:
+        key, _, value = line.partition('=')
+        key = key.strip()
+        if key in values:
+            continue
+        if remove and remove.get(key) == value.strip():
+            continue
+        if line.strip():
+            kept.append(line)
+    for key, value in values.items():
+        kept.append(key + ' = ' + value)
+    with open('settings.toml', 'w') as f:
+        f.write('\n'.join(kept) + '\n')
+
+
 class WiFiConnectivity:
 
     def __init__(self):
@@ -619,13 +661,19 @@ class WiFiConnectivity:
         :arg
             ssid (str): The SSID of the WiFi network.
             password (str): The password of the WiFi network.
-            webpassword (str): The web API password.
+            webpassword (str): The web API password. The public default
+                sent by Elioblocs ('webpassword') is ignored and removed.
         """
-        with open('settings.toml', 'w') as f:
-            f.write(f'CIRCUITPY_WIFI_SSID = "{ssid}"\n')
-            f.write(f'CIRCUITPY_WIFI_PASSWORD = "{password}"\n')
-            f.write(f'CIRCUITPY_WEB_API_PASSWORD = "{webpassword}"\n')
-            f.write(f'CIRCUITPY_WEB_API_PORT = 8080')
+        values = {
+            'CIRCUITPY_WIFI_SSID': _toml_string(ssid),
+            'CIRCUITPY_WIFI_PASSWORD': _toml_string(password),
+            'CIRCUITPY_WEB_API_PORT': '8080',
+        }
+        if webpassword and webpassword != _PUBLIC_WEB_PASSWORD:
+            values['CIRCUITPY_WEB_API_PASSWORD'] = _toml_string(webpassword)
+        # Never leave the public default behind (written by 4.0 and older).
+        _update_settings(values, {
+            'CIRCUITPY_WEB_API_PASSWORD': _toml_string(_PUBLIC_WEB_PASSWORD)})
 
         print("Settings saved")
         print("Restart the board to connect to the wifi network")
@@ -650,8 +698,7 @@ class WiFiConnectivity:
             password (str): The password for the access point.
         """
 
-        with open('settings.toml', 'w') as f:
-            f.write(f'CIRCUITPY_WEB_API_PORT = 8080')
+        _update_settings({'CIRCUITPY_WEB_API_PORT': '8080'})
 
         wifi.radio.enabled = True
         wifi.radio.start_ap(ssid, password)
