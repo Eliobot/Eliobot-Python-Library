@@ -155,3 +155,6 @@ ir_remote = IRRemote(ir_receiver)
 **Important:** Remember that the IR receiver and obstacle sensor share the same pin,
 so they cannot be used at the same time.
 Ensure that your code only uses one of these features at a time to avoid conflicts.
+## Licence
+
+Cette librairie est distribuée sous licence MIT. Voir le fichier [LICENSE](LICENSE).
